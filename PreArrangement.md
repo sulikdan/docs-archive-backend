@@ -86,11 +86,11 @@
 # Reasons why my own
 Here are:
   * latest Spring etc. libraries
-  * intended for single users/small group users as DMS for storage & searching [ see multiple tools ] - but many supported at PRO-level - payed one
+  * intended for single users/small group users as DMS for storage & searching ( see multiple tools ) - but many supported at PRO-level - payed one
   * easy to set up
   * very well documented
   * ?? supports bar scanning
-  * mirror saving for secuiry/saving to cloud[gdrive] if required
+  * mirror saving for secuiry/saving to cloud(gdrive) if required
   * totally free
   * search in scanned text?
   * Supports Slovak version of APP
@@ -170,8 +170,8 @@ Negatives:
 * user
   * login
   * change password
-  * reset password through mail?
-  * password hashing?
+    * reset password through mail?
+    * password hashing?
   * adding additional users, if admin
 * documents
   * importing documents
@@ -179,22 +179,82 @@ Negatives:
     * lazy OCR scanning and saving
   * searching imported documents
     * pagination
-    * fullteach search
+    * fulltext search
     * tag search
   * deleting documents from app
   * exporting documents?
 * changing working OCR mode
   * input language
-  * proccessing document reliability
+  * processing document reliability
     * faster & more unreliable
     * slower & more accurate
 
 
 ### Non-Functional
-* Reliability - stored data should be backed
-* Scalability - possible scalling in high user requests
+* Reliability - it would be supported by usage of docker, cheking input values/data
+  * testable
+* Scalability - enable possible scalling in high user requests demand
 * Basic security - access to data should be somehow secured through frontend/backend
 * Integration - software should be able to work with other applications through API, if they don't want ot use FE approach
+* Extensibility
+* Open-Source
+* Free
+* Reusability - ? for example OCR on separate docker image
+* Documentation
 * add more
 
 ### User Interface
+Maybe later? Something simple:
+* Login
+* Search Documents component
+* User component
+* edit document
+* view document
+
+#### What to mentiones
+* Requirements
+* Docker image
+  * different images with different OCR tesseract languages
+* whats next - to start implementing?
+  * MondoDB vs normal relational Database
+
+
+### 29.6.2020 - TODO
+* check elastic search? vs mongoDB search ... better DB for searching in text with extended posibilities
+* implement and prepare OCR docker image
+  * how it works with setting different analysing modes
+  * how it works with using different languages for input
+* template/intro for my BackendApp
+
+### 3.7.2020
+* JavaCPP Presets for Tesseract vs Tess4j
+* https://www.youtube.com/watch?v=YFl2mCHdv24
+
+### 17.7.2020
+* MongoDB loosing data on insert???
+* docker image problem??
+* reactive programming
+* webflux react vs default servlet API
+    * cons
+    * pro
+    * my decision ...
+
+### 24.7.2020
+* Maybe change MongoDB
+    * id generation ObjectId
+    * ACID troubles?
+* Limit input file to avoid craziness
+* API only async - sync is pointless ..
+* Document OCR - Automatic or immeadiatly, but queued with automatic
+* Trouble with queueing, multi-threaded approach may be not thread safe
+* Very "simple" approach avoiding big technologies
+* DB repo built on CrudRepo - easy to switch to different DB type, if supported
+
+### 24.7.2020
+* Careful JPA vs CrudRepo vs Hibernate
+    * JPA not working well with MongoDB another reason to use different DB
+* reason why this:
+    * my company father has a lot of documents
+    * I as "abroad" student have to take care of different documents
+    * Neccessity to store documents required by law
+    * In usefull for user to have them stored
