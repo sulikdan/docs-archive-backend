@@ -36,7 +36,7 @@ public class DocumentUploadExceptionAdvice extends ResponseEntityExceptionHandle
 
   @ExceptionHandler(UnsupportedLanguage.class)
   public ResponseEntity<String> handleUnsupportedLanguage(Exception e) {
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+    return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
         .body(UnsupportedLanguage.class.getName() + " exception:\n" + e.getMessage());
   }
 

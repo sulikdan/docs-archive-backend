@@ -2,7 +2,9 @@ package com.sulikdan.ERDMS.services;
 
 import com.sulikdan.ERDMS.entities.DocConfig;
 import com.sulikdan.ERDMS.entities.Document;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -37,7 +39,7 @@ public interface DocumentService {
    * @param docConfig settings for OCR, how to scan the document
    * @return the saved Document with assigned ID and details
    */
-  Document createNewDocument(Document document, DocConfig docConfig);
+  Document createNewDocument(Document document);
 
   /**
    * Saves document using repo layer.
@@ -53,4 +55,13 @@ public interface DocumentService {
    * @param document object to be updated using provided Id in document
    */
   void updateDocument(Document document);
+
+  /**
+   * TODO
+   * @param files
+   * @param docConfig
+   * @return
+   * @throws IOException
+   */
+  List<Document> processNewDocuments(MultipartFile[] files, DocConfig docConfig) throws IOException;
 }

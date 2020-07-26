@@ -2,6 +2,7 @@ package com.sulikdan.ERDMS.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sulikdan.ERDMS.entities.DocConfig;
 import com.sulikdan.ERDMS.entities.Document;
 import com.sulikdan.ERDMS.exceptions.UnsupportedLanguage;
 import com.sulikdan.ERDMS.services.DocumentService;
@@ -34,14 +35,12 @@ import java.util.List;
 public class DocumentController {
 
   protected final DocumentService documentService;
-  protected final FileStorageService fileStorageService;
 
   ObjectMapper mapper = new ObjectMapper();
 
   public DocumentController(
-      DocumentService documentService, FileStorageService fileStorageService) {
+      DocumentService documentService) {
     this.documentService = documentService;
-    this.fileStorageService = fileStorageService;
   }
 
   private static String generateUriForAsyncStatus(
@@ -51,16 +50,43 @@ public class DocumentController {
         + filePath.getFileName().toString();
   }
 
-  /**
-   * Generates name prefix for uploaded files. consisting of OCR_Timestamp
-   *
-   * @return strings "OCR_" + "current_timestamp_now()"
-   * @implNote It's temporary solution and for many threaded usage, there may chance of collision
-   *     and may need to be tweaked with adding thread number to it.
-   */
-  protected static String generateNamePrefix() {
-    Date now = new Date();
-    return "ERDMS_" + now.getTime();
+  @ResponseBody
+  @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<String> uploadAndExtractTextSync(
+      @RequestPart("files") MultipartFile[] files,
+      @RequestParam(value = "lang", defaultValue = "eng") String lang,
+      @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
+      @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality,
+      @RequestParam(value = "scanImmediately", defaultValue = "false") Boolean scanImmediately)
+      throws JsonProcessingException, IOException {
+
+    // check language
+    checkSupportedLanguages(lang);
+
+    // creating config with settings
+    DocConfig docConfig = new DocConfig(highQuality, multiPageFile, lang, scanImmediately);
+
+    //TODO change documents to something else(TDO), not to contain everything, just base stuff ...
+    List<Document> uploadedDocumentList = documentService.processNewDocuments(files,docConfig);
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(uploadedDocumentList));
+  }
+
+  @GetMapping("/{documentId}")
+  public ResponseEntity<String> getDocument(String documentId) throws JsonProcessingException {
+
+    Document toReturn = documentService.findDocumentById(documentId);
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toReturn));
+  }
+
+  @GetMapping("/")
+  public ResponseEntity<String> getDocuments() throws JsonProcessingException {
+    List<Document> foundDocuments = documentService.findAllDocuments();
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundDocuments));
   }
 
   /**
@@ -78,63 +104,5 @@ public class DocumentController {
       default:
         throw new UnsupportedLanguage(language);
     }
-  }
-
-  @ResponseBody
-  @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> uploadAndExtractTextSync(
-      @RequestPart("files") MultipartFile[] files,
-      @RequestParam(value = "lang", defaultValue = "eng") String lang,
-      @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
-      @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality)
-      throws JsonProcessingException, IOException {
-
-    // check language
-    checkSupportedLanguages(lang);
-
-    //        DocConfig docConfig = new DocConfig(highQuality, multiPageFile, lang, );
-
-    // save file to disk + return Path
-    List<Document> uploadedDocumentList = new ArrayList<>();
-    for (MultipartFile file : files) {
-      Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
-      uploadedDocumentList.add(
-          new Document(file.getName(), savedFilePath, ArrayUtils.toObject(file.getBytes()), null));
-    }
-    // createDoc with all provided params + add path + newID!!
-    // send to DocumentSevice - layer
-
-    // return result
-
-    //        checkSupportedLanguages(lang);
-    //
-    //        List<Document> resultDocumentList = new ArrayList<>();
-    //
-    //        for (MultipartFile file : files) {
-    //            Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
-    //
-    //            resultDocumentList.add(processFileSync(savedFilePath, file.getOriginalFilename(),
-    // lang, multiPageFile, highQuality));
-    //            fileStorageService.deleteFile(savedFilePath);
-    //        }
-
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(""));
-  }
-
-  @GetMapping("/{documentId}")
-  public ResponseEntity<String> getDocument(String documentId) throws JsonProcessingException {
-
-    Document toReturn = documentService.findDocumentById(documentId);
-
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toReturn));
-  }
-
-  @GetMapping("/")
-  public ResponseEntity<String> getDocuments() throws JsonProcessingException {
-    List<Document> foundDocuments = documentService.findAllDocuments();
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundDocuments));
   }
 }
