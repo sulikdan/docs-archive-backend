@@ -7,9 +7,12 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
- * Created by Daniel Šulik on 02-Jul-20
  * <p>
  * Class FileUploadExceptionAdvice is used for .....
+ *
+ * @author Daniel Šulik
+ * @version 1.0
+ * @since 02-Jul-20
  */
 //@ControllerAdvice
 public class FileUploadExceptionAdvice extends ResponseEntityExceptionHandler {

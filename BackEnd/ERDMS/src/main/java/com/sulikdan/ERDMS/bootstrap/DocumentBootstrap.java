@@ -14,9 +14,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by Daniel Šulik on 22-Jul-20
  * <p>
  * Class DocumentBootstrap is used for .....
+ *
+ *  * @author Daniel Šulik
+ *  * @version 1.0
+ *  * @since 22-Jul-20
  */
 @Slf4j
 @Component
@@ -35,7 +38,7 @@ public class DocumentBootstrap implements ApplicationListener<ContextRefreshedEv
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
 
         log.info("Loading documents.");
@@ -47,7 +50,7 @@ public class DocumentBootstrap implements ApplicationListener<ContextRefreshedEv
 
     }
 
-    private List<Document> loadDocuments(){
+    public List<Document> loadDocuments(){
 
         Document document1 = Document.builder().id("11xyz11").nameOfFile("JustRandomFile1.jpg").documentFile(null).pageList(null).build();
         Document document2 = Document.builder().id("22xyz22").nameOfFile("JustRandomFile2.jpg").documentFile(null).pageList(null).build();

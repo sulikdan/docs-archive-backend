@@ -11,9 +11,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
- * Created by Daniel Šulik on 09-Jul-20
  *
  * <p>Class DocumentUploadExceptionAdvice is used for .....
+ *
+ * @author Daniel Šulik
+ * @version 1.0
+ * @since 09-Jul-20
  */
 @ControllerAdvice
 public class DocumentUploadExceptionAdvice extends ResponseEntityExceptionHandler {

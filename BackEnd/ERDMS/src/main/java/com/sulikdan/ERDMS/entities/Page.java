@@ -4,9 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Created by Daniel Šulik on 18-Jul-20
  * <p>
- * Class Page is used for .....
+ * Class Page is used to save pages as string. Later may be extended with more properties per page.
+ *
+ * @author Daniel Šulik
+ * @version 1.0
+ * @since 18-Jul-20
  */
 @Getter
 @Setter

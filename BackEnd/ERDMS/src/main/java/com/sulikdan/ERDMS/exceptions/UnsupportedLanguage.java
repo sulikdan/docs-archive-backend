@@ -4,9 +4,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Created by Daniel Šulik on 11-Jul-20
  *
- * <p>Class UnsopprotedLanguage is used for .....
+ * <p>Class UnsupportedLanguage is used for .....
+ *
+ * @author Daniel Šulik
+ * @version 1.0
+ * @since 11-Jul-20
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class UnsupportedLanguage extends RuntimeException {
