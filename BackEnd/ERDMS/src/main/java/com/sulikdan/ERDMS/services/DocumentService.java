@@ -1,12 +1,11 @@
 package com.sulikdan.ERDMS.services;
 
-import com.sulikdan.ERDMS.entities.Document;
 import com.sulikdan.ERDMS.entities.DocConfig;
+import com.sulikdan.ERDMS.entities.Document;
 
 import java.util.List;
 
 /**
- * <p>
  * Class DocumentService is service layer interface to work with documents.
  *
  * @author Daniel Šulik
@@ -15,41 +14,43 @@ import java.util.List;
  */
 public interface DocumentService {
 
-    /**
-     * A method to find a document using provided id.
-     * @param id identificator of document
-     * @return the searched document or NotFoundException
-     */
-    Document findDocumentById(String id);
+  /**
+   * A method to find a document using provided id.
+   *
+   * @param id identificator of document
+   * @return the searched document or NotFoundException
+   */
+  Document findDocumentById(String id);
 
-    /**
-     * A method to find/get all documents.
-     * @return List of Documents
-     */
-    List<Document> findAllDocuments();
+  /**
+   * A method to find/get all documents.
+   *
+   * @return List of Documents
+   */
+  List<Document> findAllDocuments();
 
+  /**
+   * Calls many other methods to create new Record in DB and also sends it to be processed by OCR
+   * sooner or later.
+   *
+   * @param document to be saved & processed
+   * @param docConfig settings for OCR, how to scan the document
+   * @return the saved Document with assigned ID and details
+   */
+  Document createNewDocument(Document document, DocConfig docConfig);
 
-    /**
-     * Calls many other methods to create new Record in DB and also sends it to be processed
-     * by OCR sooner or later.
-     * @param document to be saved & processed
-     * @param docConfig settings for OCR, how to scan the document
-     * @return the saved Document with assigned ID and details
-     */
-    Document createNewDocument(Document document, DocConfig docConfig);
+  /**
+   * Saves document using repo layer.
+   *
+   * @param document object to be saved
+   * @return the saved document
+   */
+  Document saveDocument(Document document);
 
-    /**
-     * Saves document using repo layer.
-     * @param document object to be saved
-     * @return the saved document
-     */
-    Document saveDocument(Document document);
-
-    /**
-     * Updates document using repo layer.
-     * @param document object to be updated using provided Id in document
-     */
-    void updateDocument(Document document);
-
-
+  /**
+   * Updates document using repo layer.
+   *
+   * @param document object to be updated using provided Id in document
+   */
+  void updateDocument(Document document);
 }

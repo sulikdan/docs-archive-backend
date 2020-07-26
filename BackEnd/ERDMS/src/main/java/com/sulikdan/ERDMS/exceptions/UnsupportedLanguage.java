@@ -4,8 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- *
- * <p>Class UnsupportedLanguage is used for .....
+ * Class UnsupportedLanguage is used for .....
  *
  * @author Daniel Šulik
  * @version 1.0

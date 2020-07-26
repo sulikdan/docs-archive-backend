@@ -5,7 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Path;
-import java.util.stream.Stream;
 
 /**
  * Created by Daniel Šulik on 02-Jul-20
@@ -30,5 +29,5 @@ public interface FileStorageService {
 
   public void deleteAllFiles();
 
-//  public Stream<Path> loadAllFiles();
+  //  public Stream<Path> loadAllFiles();
 }

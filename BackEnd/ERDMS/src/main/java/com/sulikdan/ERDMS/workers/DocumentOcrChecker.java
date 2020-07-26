@@ -7,20 +7,17 @@ import org.springframework.scheduling.annotation.Async;
 
 /**
  * Created by Daniel Šulik on 25-Jul-20
- * <p>
- * Class DocumentOcrChecker is used for .....
+ *
+ * <p>Class DocumentOcrChecker is used for .....
  */
 @Async("threadPoolTaskExecutor")
 public class DocumentOcrChecker implements Runnable {
 
-    protected Document document;
-    protected AsyncStatus asyncStatus;
+  protected Document document;
+  protected AsyncStatus asyncStatus;
 
-    protected DocumentService documentService;
+  protected DocumentService documentService;
 
-
-    @Override
-    public void run() {
-
-    }
+  @Override
+  public void run() {}
 }

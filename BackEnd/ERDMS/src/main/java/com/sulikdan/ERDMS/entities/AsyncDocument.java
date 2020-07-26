@@ -1,9 +1,6 @@
 package com.sulikdan.ERDMS.entities;
 
-import org.springframework.scheduling.annotation.Async;
-
 /**
- * <p>
  * Class AsyncDocument is used for .....
  *
  * @author Daniel Šulik
@@ -12,9 +9,7 @@ import org.springframework.scheduling.annotation.Async;
  */
 public class AsyncDocument {
 
-    protected AsyncStatus asyncStatus;
-    protected String ocrApiDocStatus;
-    protected String ocrApiDocResult;
-
-
+  protected AsyncStatus asyncStatus;
+  protected String ocrApiDocStatus;
+  protected String ocrApiDocResult;
 }

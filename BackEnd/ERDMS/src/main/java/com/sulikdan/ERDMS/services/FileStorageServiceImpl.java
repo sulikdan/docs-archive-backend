@@ -17,7 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 /**
  * Created by Daniel Šulik on 02-Jul-20
@@ -52,8 +51,8 @@ public class FileStorageServiceImpl implements FileStorageService {
   public Path saveFile(MultipartFile file, String filePrefixName) {
     try {
       Files.copy(
-              file.getInputStream(),
-              com.sulikdan.ERDMS.services.FileStorageServiceImpl.BASE_PATH.resolve(
+          file.getInputStream(),
+          com.sulikdan.ERDMS.services.FileStorageServiceImpl.BASE_PATH.resolve(
               filePrefixName + "_" + Objects.requireNonNull(file.getOriginalFilename())));
       return com.sulikdan.ERDMS.services.FileStorageServiceImpl.BASE_PATH.resolve(
           filePrefixName + "_" + Objects.requireNonNull(file.getOriginalFilename()));
@@ -67,7 +66,10 @@ public class FileStorageServiceImpl implements FileStorageService {
   @Override
   public Path saveFile(MultipartFile file, String filePrefixName, String subFolderName) {
     Path extendedBasePath =
-        Paths.get(com.sulikdan.ERDMS.services.FileStorageServiceImpl.BASE_PATH.toString() + "/" + subFolderName);
+        Paths.get(
+            com.sulikdan.ERDMS.services.FileStorageServiceImpl.BASE_PATH.toString()
+                + "/"
+                + subFolderName);
     try {
       Files.copy(
           file.getInputStream(),
@@ -135,14 +137,15 @@ public class FileStorageServiceImpl implements FileStorageService {
     FileSystemUtils.deleteRecursively(BASE_PATH.toFile());
   }
 
-//  @Override
-//  public Stream<Path> loadAllFiles() {
-//    try {
-//      return Files.walk(com.sulikdan.ocrApi.services.FileStorageServiceImpl.BASE_PATH, 1)
-//          .filter(path -> !path.equals(com.sulikdan.ocrApi.services.FileStorageServiceImpl.BASE_PATH))
-//          .map(com.sulikdan.ocrApi.services.FileStorageServiceImpl.BASE_PATH::relativize);
-//    } catch (IOException e) {
-//      throw new RuntimeException("Could not load all files!");
-//    }
-//  }
+  //  @Override
+  //  public Stream<Path> loadAllFiles() {
+  //    try {
+  //      return Files.walk(com.sulikdan.ocrApi.services.FileStorageServiceImpl.BASE_PATH, 1)
+  //          .filter(path ->
+  // !path.equals(com.sulikdan.ocrApi.services.FileStorageServiceImpl.BASE_PATH))
+  //          .map(com.sulikdan.ocrApi.services.FileStorageServiceImpl.BASE_PATH::relativize);
+  //    } catch (IOException e) {
+  //      throw new RuntimeException("Could not load all files!");
+  //    }
+  //  }
 }

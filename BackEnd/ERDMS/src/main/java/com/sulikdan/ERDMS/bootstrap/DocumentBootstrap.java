@@ -8,54 +8,69 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * <p>
  * Class DocumentBootstrap is used for .....
  *
- *  * @author Daniel Šulik
- *  * @version 1.0
- *  * @since 22-Jul-20
+ * <p>* @author Daniel Šulik * @version 1.0 * @since 22-Jul-20
  */
 @Slf4j
 @Component
 public class DocumentBootstrap implements ApplicationListener<ContextRefreshedEvent> {
 
-    protected final DocumentService documentService;
-    protected final FileStorageService fileStorageService;
+  protected final DocumentService documentService;
+  protected final FileStorageService fileStorageService;
 
-    protected final DocumentRepository documentRepository;
+  protected final DocumentRepository documentRepository;
 
-    public DocumentBootstrap(
-            DocumentService documentService, FileStorageService fileStorageService, DocumentRepository documentRepository) {
-        this.documentService    = documentService;
-        this.fileStorageService = fileStorageService;
-        this.documentRepository = documentRepository;
-    }
+  public DocumentBootstrap(
+      DocumentService documentService,
+      FileStorageService fileStorageService,
+      DocumentRepository documentRepository) {
+    this.documentService = documentService;
+    this.fileStorageService = fileStorageService;
+    this.documentRepository = documentRepository;
+  }
 
-    @Override
-//    @Transactional
-    public void onApplicationEvent(ContextRefreshedEvent event) {
+  @Override
+  //    @Transactional
+  public void onApplicationEvent(ContextRefreshedEvent event) {
 
-        log.info("Loading documents.");
+    log.info("Loading documents.");
 
-        List<Document> documents = loadDocuments();
-        documentRepository.saveAll(documents);
+    List<Document> documents = loadDocuments();
+    documentRepository.saveAll(documents);
 
-        log.info("Documents should be loaded and stored");
+    log.info("Documents should be loaded and stored");
+  }
 
-    }
+  public List<Document> loadDocuments() {
 
-    public List<Document> loadDocuments(){
+    Document document1 =
+        Document.builder()
+            .id("11xyz11")
+            .nameOfFile("JustRandomFile1.jpg")
+            .documentFile(null)
+            .pageList(null)
+            .build();
+    Document document2 =
+        Document.builder()
+            .id("22xyz22")
+            .nameOfFile("JustRandomFile2.jpg")
+            .documentFile(null)
+            .pageList(null)
+            .build();
+    Document document3 =
+        Document.builder()
+            .id("33xyz33")
+            .nameOfFile("JustRandomFile3.jpg")
+            .documentFile(null)
+            .pageList(null)
+            .build();
 
-        Document document1 = Document.builder().id("11xyz11").nameOfFile("JustRandomFile1.jpg").documentFile(null).pageList(null).build();
-        Document document2 = Document.builder().id("22xyz22").nameOfFile("JustRandomFile2.jpg").documentFile(null).pageList(null).build();
-        Document document3 = Document.builder().id("33xyz33").nameOfFile("JustRandomFile3.jpg").documentFile(null).pageList(null).build();
-
-        return Arrays.asList(document1,document2,document3);
-    }
+    return Arrays.asList(document1, document2, document3);
+  }
 }

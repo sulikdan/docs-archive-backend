@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * <p>
- * Class DocConfig is used for storing & contains configuration used in OCR tool/framework.
- * The reason to nest all this properties inside class was to avoid sending uncountable amount of params.
+ * Class DocConfig is used for storing & contains configuration used in OCR tool/framework. The
+ * reason to nest all this properties inside class was to avoid sending uncountable amount of
+ * params.
  *
  * @author Daniel Šulik
  * @version 1.0
@@ -16,12 +16,18 @@ import lombok.Setter;
 @Setter
 public class DocConfig {
 
-    // OCR properties
-    Boolean highQuality;
-    Boolean multiPage;
-    String lang;
+  // OCR properties
+  Boolean highQuality;
+  Boolean multiPage;
+  String lang;
 
-    // Doc properties
-    Boolean scanImmediately;
+  // Doc properties
+  Boolean scanImmediately;
 
+  public DocConfig(Boolean highQuality, Boolean multiPage, String lang, Boolean scanImmediately) {
+    this.highQuality = highQuality;
+    this.multiPage = multiPage;
+    this.lang = lang;
+    this.scanImmediately = scanImmediately;
+  }
 }

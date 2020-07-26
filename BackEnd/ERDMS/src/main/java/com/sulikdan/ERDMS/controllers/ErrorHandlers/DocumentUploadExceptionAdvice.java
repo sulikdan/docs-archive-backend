@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.io.IOException;
+
 /**
- *
- * <p>Class DocumentUploadExceptionAdvice is used for .....
+ * Class DocumentUploadExceptionAdvice is used for .....
  *
  * @author Daniel Šulik
  * @version 1.0
@@ -37,5 +38,11 @@ public class DocumentUploadExceptionAdvice extends ResponseEntityExceptionHandle
   public ResponseEntity<String> handleUnsupportedLanguage(Exception e) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(UnsupportedLanguage.class.getName() + " exception:\n" + e.getMessage());
+  }
+
+  @ExceptionHandler(IOException.class)
+  public ResponseEntity<String> handleIOException(Exception e) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(IOException.class.getName() + " exception:\n" + e.getMessage());
   }
 }
