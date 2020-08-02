@@ -34,7 +34,8 @@ class DocumentServiceImplTest {
     void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        documentService = new DocumentServiceImpl(ocrService, virtualStorageService, documentRepository);
+//        documentService = new DocumentServiceImpl(ocrService, virtualStorageService, fileStorageService,
+//                                                  documentRepository);
     }
 
     @Test

@@ -90,22 +90,23 @@ public class DocumentServiceImpl implements DocumentService {
   @Override
   public Document createNewDocument(Document document) {
 
+    // save to DB
+    // TODO consider using only repository?
+    Document saved = saveDocument(document);
+
+    // This part should be done asyncly ... or at least partially
     if (document.getDocConfig().getScanImmediately()) {
       // send request to OCR-API
-      Document sentToOCR = ocrService.extractTextFromDocument(document, document.getDocConfig());
+      Document sentToOCR = ocrService.extractTextFromDocument(saved, document.getDocConfig());
       // save results to queue & to be later processed
       virtualStorageService.addDocument(sentToOCR);
-      // save to DB
-      saveDocument(sentToOCR);
-      // return result
-      return sentToOCR;
-    } else {
+      // update doc
+      // TODO consider using only repository?
+      updateDocument(sentToOCR);
 
-      // save to DB
-      saveDocument(document);
-      // return result
-      return document;
     }
+
+    return saved;
   }
 
   @Override

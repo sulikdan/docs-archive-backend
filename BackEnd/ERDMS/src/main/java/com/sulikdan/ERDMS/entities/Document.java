@@ -22,7 +22,7 @@ import java.util.List;
 @Setter
 @Builder
 @EqualsAndHashCode // TODO in future think about better approach, lombok might not be the best tool
-                   // for this
+// for this
 public class Document {
 
   protected String id;
@@ -30,8 +30,27 @@ public class Document {
   protected String nameOfFile;
   protected Path filePath;
   protected Byte[] documentFile;
+  protected DocumentType documentType;
+
+  protected AsyncDocument asyncDocument;
 
   protected DocConfig docConfig;
+
+  public Document() {
+  }
+
+  public Document(
+          String id, List<Page> pageList, String nameOfFile, Path filePath, Byte[] documentFile,
+          DocumentType documentType, AsyncDocument asyncDocument, DocConfig docConfig) {
+    this.id            = id;
+    this.pageList      = pageList;
+    this.nameOfFile    = nameOfFile;
+    this.filePath      = filePath;
+    this.documentFile  = documentFile;
+    this.documentType  = documentType;
+    this.asyncDocument = asyncDocument;
+    this.docConfig     = docConfig;
+  }
 
   public Document(String nameOfFile, Path filePath, Byte[] documentFile, DocConfig docConfig) {
     this.id = new ObjectId().toString();
@@ -42,4 +61,23 @@ public class Document {
 
     this.docConfig = docConfig;
   }
+
+  public Document(
+      String nameOfFile,
+      Path filePath,
+      Byte[] documentFile,
+      DocumentType documentType,
+      AsyncDocument asyncDocument,
+      DocConfig docConfig) {
+    this.id = new ObjectId().toString();
+    this.pageList = new ArrayList<>();
+    this.nameOfFile = nameOfFile;
+    this.filePath = filePath;
+    this.documentFile = documentFile;
+    this.documentType = documentType;
+    this.asyncDocument = asyncDocument;
+    this.docConfig = docConfig;
+  }
+
+
 }

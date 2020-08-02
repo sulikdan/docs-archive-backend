@@ -48,6 +48,18 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 			<version>2.3.1.RELEASE</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
+			<version>2.3.1.RELEASE</version>
+		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.projectreactor</groupId>-->
+<!--			<artifactId>reactor-spring</artifactId>-->
+<!--			<version>1.0.1.RELEASE</version>-->
+<!--		</dependency>-->
+
 		<dependency>
 			<groupId>org.springframework.session</groupId>
 			<artifactId>spring-session-core</artifactId>
@@ -77,8 +89,23 @@
 			<version>4.13-rc-2</version>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.10</version>
+        </dependency>
 
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.4.3</version>
+		</dependency>
 
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>5.2.7.RELEASE</version>
+		</dependency>
 
 	</dependencies>
 
@@ -88,7 +115,29 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+
+			<!--https://www.baeldung.com/spring-rest-openapi-documentation -->
+			<plugin>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-maven-plugin</artifactId>
+				<version>0.2</version>
+				<executions>
+					<execution>
+						<phase>integration-test</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+					<outputFileName>openapi.json</outputFileName>
+					<outputDir>${project.build.directory}</outputDir>
+				</configuration>
+			</plugin>
 		</plugins>
+
+
 	</build>
 
 </project>
