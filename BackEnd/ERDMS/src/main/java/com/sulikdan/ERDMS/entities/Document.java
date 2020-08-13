@@ -1,5 +1,6 @@
 package com.sulikdan.ERDMS.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,31 +26,34 @@ import java.util.List;
 // for this
 public class Document {
 
-  protected String id;
-  protected List<Page> pageList;
-  protected String nameOfFile;
-  protected Path filePath;
-  protected Byte[] documentFile;
-  protected DocumentType documentType;
+  private String id;
+  @JsonProperty("pages")
+  private List<Page> pageList;
+  @JsonProperty("origName")
+  private String nameOfFile;
+  private Path filePath;
+  private Byte[] documentFile;
+  private byte[] documentAsBytes;
+  private DocumentType documentType;
 
-  protected AsyncDocument asyncDocument;
+  private AsyncApiInfo asyncApiInfo;
 
-  protected DocConfig docConfig;
+  private DocConfig docConfig;
 
   public Document() {
   }
 
   public Document(
           String id, List<Page> pageList, String nameOfFile, Path filePath, Byte[] documentFile,
-          DocumentType documentType, AsyncDocument asyncDocument, DocConfig docConfig) {
-    this.id            = id;
-    this.pageList      = pageList;
-    this.nameOfFile    = nameOfFile;
-    this.filePath      = filePath;
-    this.documentFile  = documentFile;
-    this.documentType  = documentType;
-    this.asyncDocument = asyncDocument;
-    this.docConfig     = docConfig;
+          DocumentType documentType, AsyncApiInfo asyncApiInfo, DocConfig docConfig) {
+    this.id           = id;
+    this.pageList     = pageList;
+    this.nameOfFile   = nameOfFile;
+    this.filePath     = filePath;
+    this.documentFile = documentFile;
+    this.documentType = documentType;
+    this.asyncApiInfo = asyncApiInfo;
+    this.docConfig    = docConfig;
   }
 
   public Document(String nameOfFile, Path filePath, Byte[] documentFile, DocConfig docConfig) {
@@ -66,18 +70,32 @@ public class Document {
       String nameOfFile,
       Path filePath,
       Byte[] documentFile,
+      byte[] documentAsBytes,
       DocumentType documentType,
-      AsyncDocument asyncDocument,
+      AsyncApiInfo asyncApiInfo,
       DocConfig docConfig) {
     this.id = new ObjectId().toString();
     this.pageList = new ArrayList<>();
     this.nameOfFile = nameOfFile;
     this.filePath = filePath;
     this.documentFile = documentFile;
+    this.documentAsBytes = documentAsBytes;
     this.documentType = documentType;
-    this.asyncDocument = asyncDocument;
-    this.docConfig = docConfig;
+    this.asyncApiInfo = asyncApiInfo;
+    this.docConfig    = docConfig;
   }
 
-
+  public Document(
+          String id, List<Page> pageList, String nameOfFile, Path filePath, Byte[] documentFile, byte[] documentAsBytes,
+          DocumentType documentType, AsyncApiInfo asyncApiInfo, DocConfig docConfig) {
+    this.id              = id;
+    this.pageList        = pageList;
+    this.nameOfFile      = nameOfFile;
+    this.filePath        = filePath;
+    this.documentFile    = documentFile;
+    this.documentAsBytes = documentAsBytes;
+    this.documentType    = documentType;
+    this.asyncApiInfo    = asyncApiInfo;
+    this.docConfig       = docConfig;
+  }
 }

@@ -14,5 +14,9 @@ import lombok.Setter;
 @Setter
 public class Page {
 
-  protected String content;
+  private String content;
+
+  public Page(String content) {
+    this.content = content;
+  }
 }

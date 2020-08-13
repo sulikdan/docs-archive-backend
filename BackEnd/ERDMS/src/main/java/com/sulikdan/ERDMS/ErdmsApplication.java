@@ -36,4 +36,7 @@ public class ErdmsApplication {
     executor.initialize();
     return executor;
   }
+//  TODO implement sheduler - async ...
+//  TODO https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/scheduling.html
+//  TODO https://spring.io/guides/gs/scheduling-tasks/https://spring.io/guides/gs/scheduling-tasks/
 }

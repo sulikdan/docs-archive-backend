@@ -1,8 +1,10 @@
 package com.sulikdan.ERDMS.services;
 
+import com.sulikdan.ERDMS.entities.AsyncApiState;
 import com.sulikdan.ERDMS.entities.DocConfig;
 import com.sulikdan.ERDMS.entities.Document;
 import com.sulikdan.ERDMS.repositories.DocumentRepository;
+import com.sulikdan.ERDMS.services.ocr.OCRService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Class DocumentServiceImpl is implementation of DocumentService interface.
@@ -28,12 +32,12 @@ import java.util.Optional;
 public class DocumentServiceImpl implements DocumentService {
 
   // services
-  protected final OCRService ocrService;
-  protected final VirtualStorageService virtualStorageService;
-  protected final FileStorageService fileStorageService;
+  private final OCRService ocrService;
+  private final VirtualStorageService virtualStorageService;
+  private final FileStorageService fileStorageService;
 
   // repos
-  protected final DocumentRepository documentRepository;
+  private final DocumentRepository documentRepository;
 
   public DocumentServiceImpl(
       OCRService ocrService,
@@ -103,7 +107,6 @@ public class DocumentServiceImpl implements DocumentService {
       // update doc
       // TODO consider using only repository?
       updateDocument(sentToOCR);
-
     }
 
     return saved;
@@ -127,8 +130,20 @@ public class DocumentServiceImpl implements DocumentService {
    * @implNote It's temporary solution and for many threaded usage, there may chance of collision
    *     and may need to be tweaked with adding thread number to it.
    */
-  protected static String generateNamePrefix() {
+  private static String generateNamePrefix() {
     Date now = new Date();
     return "ERDMS_" + now.getTime();
+  }
+
+  /**
+   * Temporary || easiest solution
+   * @param asyncApiState
+   * @return
+   */
+  @Override
+  public List<Document> finDocumentsByAsyncApiState(AsyncApiState asyncApiState) {
+    return StreamSupport.stream(documentRepository.findAll().spliterator(), false)
+        .filter(document -> document.getAsyncApiInfo().getAsyncApiState().equals(asyncApiState))
+        .collect(Collectors.toList());
   }
 }

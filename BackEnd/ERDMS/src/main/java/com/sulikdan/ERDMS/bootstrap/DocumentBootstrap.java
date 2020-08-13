@@ -21,10 +21,10 @@ import java.util.List;
 @Component
 public class DocumentBootstrap implements ApplicationListener<ContextRefreshedEvent> {
 
-  protected final DocumentService documentService;
-  protected final FileStorageService fileStorageService;
+  private final DocumentService documentService;
+  private final FileStorageService fileStorageService;
 
-  protected final DocumentRepository documentRepository;
+  private final DocumentRepository documentRepository;
 
   public DocumentBootstrap(
       DocumentService documentService,

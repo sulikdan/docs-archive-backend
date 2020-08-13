@@ -34,7 +34,7 @@ import java.util.List;
 @RequestMapping("api/document")
 public class DocumentController {
 
-  protected final DocumentService documentService;
+  private final DocumentService documentService;
 
   ObjectMapper mapper = new ObjectMapper();
 
@@ -95,7 +95,7 @@ public class DocumentController {
    *
    * @param language expecting string in lower-case
    */
-  protected static void checkSupportedLanguages(String language) {
+  private static void checkSupportedLanguages(String language) {
     switch (language) {
       case "eng":
       case "cz":

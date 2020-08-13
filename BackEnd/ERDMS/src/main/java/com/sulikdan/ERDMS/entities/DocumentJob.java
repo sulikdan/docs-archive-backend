@@ -11,9 +11,9 @@ import java.io.File;
  */
 public class DocumentJob {
 
-  protected String id;
-  protected String nameOfFile;
-  protected Document document;
-  protected File storedFile;
-  protected AsyncDocument asyncDocument;
+  private String id;
+  private String nameOfFile;
+  private Document document;
+  private File storedFile;
+  private AsyncApiInfo asyncApiInfo;
 }

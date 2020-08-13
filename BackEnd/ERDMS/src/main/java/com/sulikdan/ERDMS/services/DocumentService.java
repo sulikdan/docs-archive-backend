@@ -1,5 +1,6 @@
 package com.sulikdan.ERDMS.services;
 
+import com.sulikdan.ERDMS.entities.AsyncApiState;
 import com.sulikdan.ERDMS.entities.DocConfig;
 import com.sulikdan.ERDMS.entities.Document;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,4 +65,7 @@ public interface DocumentService {
    * @throws IOException
    */
   List<Document> processNewDocuments(MultipartFile[] files, DocConfig docConfig) throws IOException;
+
+  List<Document> finDocumentsByAsyncApiState(AsyncApiState asyncApiState);
+
 }

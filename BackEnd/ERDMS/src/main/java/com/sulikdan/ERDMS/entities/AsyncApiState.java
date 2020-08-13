@@ -16,7 +16,7 @@ package com.sulikdan.ERDMS.entities;
  * @version 1.0
  * @since 22-Jul-20
  */
-public enum AsyncStatus {
+public enum AsyncApiState {
   WAITING_TO_SEND,
   PROCESSING,
   COMPLETED
