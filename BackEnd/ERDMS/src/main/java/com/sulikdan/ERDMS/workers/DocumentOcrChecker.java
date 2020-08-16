@@ -8,8 +8,10 @@ import com.sulikdan.ERDMS.services.DocumentService;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.ArrayList;
@@ -21,14 +23,14 @@ import java.util.List;
  * <p>Class DocumentOcrChecker is used for .....
  */
 @Slf4j
-@Async("threadPoolTaskExecutor")
+@Configuration
+@EnableScheduling
+//@Async("threadPoolTaskExecutor")
 public class DocumentOcrChecker { // } implements Runnable {
 
   private TaskExecutor taskExecutor;
 
   private final BeanFactory beanFactory;
-  private final Document document;
-  //  private final AsyncApiState asyncApiState;
 
   private final DocumentService documentService;
   private final DocumentMongoRepository documentMongoRepository;
@@ -37,31 +39,34 @@ public class DocumentOcrChecker { // } implements Runnable {
   public DocumentOcrChecker(
       TaskExecutor taskExecutor,
       BeanFactory beanFactory,
-      Document document,
       DocumentService documentService,
       DocumentMongoRepository documentMongoRepository,
       DocumentRepository documentRepository) {
     this.taskExecutor = taskExecutor;
     this.beanFactory = beanFactory;
-    this.document = document;
-    //    this.asyncApiState           = asyncApiState;
     this.documentService = documentService;
     this.documentMongoRepository = documentMongoRepository;
     this.documentRepository = documentRepository;
   }
 
   // 2min -> 120000milis
-  @Scheduled(fixedDelay = 120000, initialDelay = 120000)
+  @Scheduled(fixedDelay = 60000)//(120000/2), initialDelay = (120000/2))
   public void checkUnscannedDocuments() {
     log.info("Started DocumentOcrChecker!");
 
     //    TODO add pageLimit ...
     // find completed -> to be deleted? -- may not be needed
-    List<Document> completedDocs =
-        documentService.finDocumentsByAsyncApiState(AsyncApiState.COMPLETED);
+    List<Document> cleaningDocs =
+            documentService.finDocumentsByAsyncApiState(AsyncApiState.RESOURCE_TO_CLEAN);
+
     // find processed -> to download
+    List<Document> completedDocs =
+        documentService.finDocumentsByAsyncApiState(AsyncApiState.SCANNED);
+
+    //    check status
     List<Document> processingDocs =
         documentService.finDocumentsByAsyncApiState(AsyncApiState.PROCESSING);
+
     // find to_be_send -> to process not yet processed
     List<Document> waitingToSendDocs =
         documentService.finDocumentsByAsyncApiState(AsyncApiState.WAITING_TO_SEND);
@@ -70,6 +75,7 @@ public class DocumentOcrChecker { // } implements Runnable {
     List<Document> documentsWork = new ArrayList<>(completedDocs);
     documentsWork.addAll(processingDocs);
     documentsWork.addAll(waitingToSendDocs);
+    documentsWork.addAll(cleaningDocs);
 
     // pick subset of them with ratio to each group
 //    TODO every service/repo new instance??

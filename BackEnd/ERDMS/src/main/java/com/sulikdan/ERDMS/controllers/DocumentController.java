@@ -7,6 +7,7 @@ import com.sulikdan.ERDMS.entities.Document;
 import com.sulikdan.ERDMS.exceptions.UnsupportedLanguage;
 import com.sulikdan.ERDMS.services.DocumentService;
 import com.sulikdan.ERDMS.services.FileStorageService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +31,7 @@ import java.util.List;
  * @version 1.0
  * @since 18-Jul-20
  */
+@Slf4j
 @RestController
 @RequestMapping("api/document")
 public class DocumentController {
@@ -59,7 +61,7 @@ public class DocumentController {
       @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality,
       @RequestParam(value = "scanImmediately", defaultValue = "false") Boolean scanImmediately)
       throws JsonProcessingException, IOException {
-
+    log.info("Getting file.");
     // check language
     checkSupportedLanguages(lang);
 
@@ -69,11 +71,13 @@ public class DocumentController {
     //TODO change documents to something else(TDO), not to contain everything, just base stuff ...
     List<Document> uploadedDocumentList = documentService.processNewDocuments(files,docConfig);
 
+    log.info("File processed: " + uploadedDocumentList.size());
+
     return ResponseEntity.status(HttpStatus.OK)
         .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(uploadedDocumentList));
   }
 
-  @GetMapping("/{documentId}")
+  @GetMapping(value = "/{documentId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> getDocument(String documentId) throws JsonProcessingException {
 
     Document toReturn = documentService.findDocumentById(documentId);
@@ -82,7 +86,7 @@ public class DocumentController {
         .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toReturn));
   }
 
-  @GetMapping("/")
+  @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> getDocuments() throws JsonProcessingException {
     List<Document> foundDocuments = documentService.findAllDocuments();
     return ResponseEntity.status(HttpStatus.OK)

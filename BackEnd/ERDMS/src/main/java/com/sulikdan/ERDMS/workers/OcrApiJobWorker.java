@@ -1,13 +1,12 @@
 package com.sulikdan.ERDMS.workers;
 
+import com.sulikdan.ERDMS.entities.AsyncApiState;
 import com.sulikdan.ERDMS.entities.Document;
 import com.sulikdan.ERDMS.repositories.DocumentRepository;
 import com.sulikdan.ERDMS.services.DocumentService;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
-
-import javax.print.Doc;
 
 /**
  * Created by Daniel Šulik on 25-Jul-20
@@ -24,9 +23,12 @@ public class OcrApiJobWorker implements Runnable {
   private Document document;
 
   public OcrApiJobWorker(
-          OCRService ocrService, DocumentService documentService, DocumentRepository documentRepository, Document document) {
-    this.ocrService         = ocrService;
-    this.documentService    = documentService;
+      OCRService ocrService,
+      DocumentService documentService,
+      DocumentRepository documentRepository,
+      Document document) {
+    this.ocrService = ocrService;
+    this.documentService = documentService;
     this.documentRepository = documentRepository;
     this.document = document;
   }
@@ -36,9 +38,16 @@ public class OcrApiJobWorker implements Runnable {
 
     log.info("Running OcrApiJobWorker.");
 
-    Document returned = ocrService.extractTextFromDocument(document, document.getDocConfig());
+    AsyncApiState lastState = document.getAsyncApiInfo().getAsyncApiState();
+    Document returned = document;
 
-    documentRepository.save(returned);
+    // reapeat communication till there is change and its succesfull
+    do {
+      returned = ocrService.extractTextFromDocument(document);
+
+      if (returned != null) documentService.saveDocument(returned);
+
+    } while (returned != null && returned.getAsyncApiInfo().getAsyncApiState() != lastState);
 
     log.info("Finished OcrApiJobWorker.");
   }

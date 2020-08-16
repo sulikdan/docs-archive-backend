@@ -1,18 +1,21 @@
 package com.sulikdan.ERDMS.services;
 
+import com.sulikdan.ERDMS.entities.AsyncApiInfo;
 import com.sulikdan.ERDMS.entities.AsyncApiState;
 import com.sulikdan.ERDMS.entities.DocConfig;
 import com.sulikdan.ERDMS.entities.Document;
 import com.sulikdan.ERDMS.repositories.DocumentRepository;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
+import com.sulikdan.ERDMS.workers.OcrApiJobWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +34,8 @@ import java.util.stream.StreamSupport;
 @Service
 public class DocumentServiceImpl implements DocumentService {
 
+  private TaskExecutor taskExecutor;
+
   // services
   private final OCRService ocrService;
   private final VirtualStorageService virtualStorageService;
@@ -40,10 +45,12 @@ public class DocumentServiceImpl implements DocumentService {
   private final DocumentRepository documentRepository;
 
   public DocumentServiceImpl(
+      TaskExecutor taskExecutor,
       OCRService ocrService,
       VirtualStorageService virtualStorageService,
       FileStorageService fileStorageService,
       DocumentRepository documentRepository) {
+    this.taskExecutor = taskExecutor;
     this.ocrService = ocrService;
     this.virtualStorageService = virtualStorageService;
     this.fileStorageService = fileStorageService;
@@ -76,14 +83,27 @@ public class DocumentServiceImpl implements DocumentService {
     List<Document> uploadedDocs = new ArrayList<>();
 
     for (MultipartFile file : files) {
-      Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
-
+      //      Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
+      //      log.info("SAved file to:" + savedFilePath.toString());
+      log.info("Processing file: ");
       Document docToProcess =
-          new Document(
-              file.getName(), savedFilePath, ArrayUtils.toObject(file.getBytes()), docConfig);
+          Document.builder()
+              .nameOfFile(file.getName())
+              .filePath(null)
+              .documentFile(ArrayUtils.toObject(file.getBytes()))
+              .documentAsBytes(file.getBytes())
+              .asyncApiInfo(
+                  new AsyncApiInfo(
+                      docConfig.getScanImmediately()
+                          ? AsyncApiState.MANUAL_SENDING
+                          : AsyncApiState.WAITING_TO_SEND,
+                      null,
+                      null))
+              .build();
+
 
       uploadedDocs.add(docToProcess);
-      // TODO consider to send all files together not seperately
+      // TODO consider to send all files together not seperately && not atomic in mongoDB if send together
       createNewDocument(docToProcess);
     }
 
@@ -94,32 +114,31 @@ public class DocumentServiceImpl implements DocumentService {
   @Override
   public Document createNewDocument(Document document) {
 
-    // save to DB
-    // TODO consider using only repository?
     Document saved = saveDocument(document);
+    //    documentRepository.save(document);
 
-    // This part should be done asyncly ... or at least partially
+    // Scan doc job
     if (document.getDocConfig().getScanImmediately()) {
-      // send request to OCR-API
-      Document sentToOCR = ocrService.extractTextFromDocument(saved, document.getDocConfig());
-      // save results to queue & to be later processed
-      virtualStorageService.addDocument(sentToOCR);
-      // update doc
-      // TODO consider using only repository?
-      updateDocument(sentToOCR);
+      taskExecutor.execute(new OcrApiJobWorker(ocrService, this, documentRepository, document));
     }
 
     return saved;
   }
 
+  //  @Transactional
+  //  https://docs.mongodb.com/manual/core/write-operations-atomicity/
   @Override
   public Document saveDocument(Document document) {
+    //    TODO very dumb idea, but mongoSucks
+    document.setUpdateDateTime(LocalDateTime.now());
     return documentRepository.save(document);
   }
 
+  //  @Transactional
   @Override
   public void updateDocument(Document document) {
-    //      TODO it's not best impl... should check saving and overriding of element values ..
+    //      TODO necessary? saveDocument should be enought
+    document.setUpdateDateTime(LocalDateTime.now());
     documentRepository.save(document);
   }
 
@@ -137,6 +156,7 @@ public class DocumentServiceImpl implements DocumentService {
 
   /**
    * Temporary || easiest solution
+   *
    * @param asyncApiState
    * @return
    */

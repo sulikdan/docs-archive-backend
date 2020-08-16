@@ -1,5 +1,7 @@
 package com.sulikdan.ERDMS.bootstrap;
 
+import com.sulikdan.ERDMS.entities.AsyncApiInfo;
+import com.sulikdan.ERDMS.entities.AsyncApiState;
 import com.sulikdan.ERDMS.entities.Document;
 import com.sulikdan.ERDMS.repositories.DocumentRepository;
 import com.sulikdan.ERDMS.services.DocumentService;
@@ -42,7 +44,9 @@ public class DocumentBootstrap implements ApplicationListener<ContextRefreshedEv
     log.info("Loading documents.");
 
     List<Document> documents = loadDocuments();
-    documentRepository.saveAll(documents);
+
+    documents.forEach(document -> documentService.saveDocument(document));
+//    documentRepository.saveAll(documents);
 
     log.info("Documents should be loaded and stored");
   }
@@ -55,13 +59,16 @@ public class DocumentBootstrap implements ApplicationListener<ContextRefreshedEv
             .nameOfFile("JustRandomFile1.jpg")
             .documentFile(null)
             .pageList(null)
+            .asyncApiInfo(new AsyncApiInfo(AsyncApiState.COMPLETED, "", ""))
             .build();
+
     Document document2 =
         Document.builder()
             .id("22xyz22")
             .nameOfFile("JustRandomFile2.jpg")
             .documentFile(null)
             .pageList(null)
+            .asyncApiInfo(new AsyncApiInfo(AsyncApiState.COMPLETED, "", ""))
             .build();
     Document document3 =
         Document.builder()
@@ -69,6 +76,7 @@ public class DocumentBootstrap implements ApplicationListener<ContextRefreshedEv
             .nameOfFile("JustRandomFile3.jpg")
             .documentFile(null)
             .pageList(null)
+            .asyncApiInfo(new AsyncApiInfo(AsyncApiState.COMPLETED, "", ""))
             .build();
 
     return Arrays.asList(document1, document2, document3);

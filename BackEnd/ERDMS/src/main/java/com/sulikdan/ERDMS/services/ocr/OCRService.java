@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface OCRService {
 
-  Document extractTextFromDocument(Document document, DocConfig docConfig);
+  Document extractTextFromDocument(Document document);
 
 //  Document extractTextFromDocument(
 //      Document document, String language, Boolean multiPageFile, Boolean highQuality);

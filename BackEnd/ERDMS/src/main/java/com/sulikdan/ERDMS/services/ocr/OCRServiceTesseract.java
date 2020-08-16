@@ -1,27 +1,13 @@
 package com.sulikdan.ERDMS.services.ocr;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sulikdan.ERDMS.entities.*;
 import com.sulikdan.ERDMS.repositories.DocumentRepository;
 import com.sulikdan.ERDMS.services.statics.OcrRestApiSettings;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -49,69 +35,69 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
   }
 
   @Override
-  public Document extractTextFromDocument(Document document, DocConfig docConfig) {
+  public Document extractTextFromDocument(Document document) {
     try {
       if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.WAITING_TO_SEND) {
         // TODO check what kind of file it is!
         // TODO Or set DocumentType Before??
         //        document.
 
-        AsyncApiInfo result  = restApiOcr.postDocumentRequest(document);
+        AsyncApiInfo result = restApiOcr.postDocumentRequest(document);
+        if (result == null) return null;
+
         document.setAsyncApiInfo(result);
 
       } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.PROCESSING) {
-
+        // Checking document status
         String statusUri =
-            document
-                .getAsyncApiInfo()
-                .getOcrApiDocStatus()
-                .substring(document.getAsyncApiInfo().getOcrApiDocStatus().indexOf("ocr/") + 3);
-        // TODO save result to DB in case of Error
+            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocStatus(), "ocr/");
+
         AsyncApiInfo asyncApiInfo = restApiOcr.getDocumentStatus(statusUri);
+        if (asyncApiInfo == null) return null;
+
         document.setAsyncApiInfo(asyncApiInfo);
 
-
-      } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.COMPLETED) {
-        // TODO call API for results!
+      } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.SCANNED) {
+        //    Downloading scanned document
         String resultUri =
-                asyncApiInfo
-                        .getOcrApiDocResult()
-                        .substring(document.getAsyncApiInfo().getOcrApiDocResult().indexOf("ocr/") + 3);
+            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocResult(), "ocr/");
+
         TessApiDoc resultDoc = restApiOcr.getDocumentResult(resultUri);
+        if (resultDoc == null) return null;
+
         document.setPageList(
-                resultDoc.getPages().stream().map(Page::new).collect(Collectors.toList()));
-        // TODO save to DB
-        documentRepository.save(document);
-        //TODO delete resource from OcrAPi after saving to DB
-        //TODO fix string works!!!!
-        restApiOcr.deleteDocument(resultUri);
+            resultDoc.getPages().stream().map(Page::new).collect(Collectors.toList()));
+        document.getAsyncApiInfo().setAsyncApiState(AsyncApiState.RESOURCE_TO_CLEAN);
+
+      } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.RESOURCE_TO_CLEAN) {
+        //        deleting resources
+        String resultUri =
+            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocResult(), "ocr/");
+
+        if (restApiOcr.deleteDocument(resultUri)) {
+          document.getAsyncApiInfo().setAsyncApiState(AsyncApiState.COMPLETED);
+        }
 
       } else {
-        throw new RuntimeException("OCRService tesseract unexpected error!");
+        throw new RuntimeException(
+            "OCRService tesseract unexpected error!\n This shouldnt happen..");
       }
 
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    return null;
+    return document;
   }
-
-
-  private MultiValueMap<String, HttpEntity<?>> generateMultipartBody(String filePath) {
-    MultipartBodyBuilder builder = new MultipartBodyBuilder();
-    builder.part("file", new FileSystemResource(filePath));
-    return builder.build();
-  }
-
 
   /**
    * Returns location of resource without domain.
+   *
    * @param url from which will be extracted
    * @param patternToSplit will be used to split and return second part.
    * @return
    */
-    private String extractUriFromWholeURL(String url, String patternToSplit){
-      return  url.split(patternToSplit)[1];
-    }
+  private String extractUriFromWholeURL(String url, String patternToSplit) {
+    return url.split(patternToSplit)[1];
+  }
 }
