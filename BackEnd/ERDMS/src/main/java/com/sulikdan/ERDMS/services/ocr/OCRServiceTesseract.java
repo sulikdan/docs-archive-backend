@@ -23,11 +23,11 @@ import java.util.stream.Collectors;
 @Service
 public class OCRServiceTesseract extends OcrRestApiSettings implements OCRService {
 
-  DocumentRepository documentRepository;
+  private final  DocumentRepository documentRepository;
+  private final RestApiOcr restApiOcr;
+  private final ObjectMapper mapper = new ObjectMapper();
+  private final String SPLIT_PATTERN = "/ocr";
 
-  RestApiOcr restApiOcr;
-
-  ObjectMapper mapper = new ObjectMapper();
 
   public OCRServiceTesseract(DocumentRepository documentRepository, RestApiOcr restApiOcr) {
     this.documentRepository = documentRepository;
@@ -50,7 +50,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
       } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.PROCESSING) {
         // Checking document status
         String statusUri =
-            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocStatus(), "ocr/");
+            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocStatus(), SPLIT_PATTERN);
 
         AsyncApiInfo asyncApiInfo = restApiOcr.getDocumentStatus(statusUri);
         if (asyncApiInfo == null) return null;
@@ -60,7 +60,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
       } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.SCANNED) {
         //    Downloading scanned document
         String resultUri =
-            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocResult(), "ocr/");
+            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
 
         TessApiDoc resultDoc = restApiOcr.getDocumentResult(resultUri);
         if (resultDoc == null) return null;
@@ -72,7 +72,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
       } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.RESOURCE_TO_CLEAN) {
         //        deleting resources
         String resultUri =
-            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocResult(), "ocr/");
+            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
 
         if (restApiOcr.deleteDocument(resultUri)) {
           document.getAsyncApiInfo().setAsyncApiState(AsyncApiState.COMPLETED);

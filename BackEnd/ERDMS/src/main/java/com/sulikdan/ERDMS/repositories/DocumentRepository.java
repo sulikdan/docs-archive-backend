@@ -21,5 +21,6 @@ public interface DocumentRepository extends CrudRepository<Document, String> {
 //  TODO  check if save updates -- looks like its smart AF
   // public interface DocumentRepository extends JpaRepository<Document, String> {
 
+    List<Document> findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState asyncApiState);
 
 }

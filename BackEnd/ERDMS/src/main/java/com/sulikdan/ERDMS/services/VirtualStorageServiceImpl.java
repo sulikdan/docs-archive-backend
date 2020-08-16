@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -15,7 +16,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Service
 public class VirtualStorageServiceImpl implements VirtualStorageService {
 
-  BlockingQueue<Document> documentBlockingQueue = new LinkedBlockingDeque<>();
+  private final BlockingQueue<Document> documentBlockingQueue = new LinkedBlockingDeque<>();
+  private final ConcurrentHashMap<String, Boolean> documentsMapCurrentlyInUse =
+      new ConcurrentHashMap<>();
 
   @Override
   public Document getNextDocument() {
@@ -35,5 +38,20 @@ public class VirtualStorageServiceImpl implements VirtualStorageService {
   @Override
   public void addDocuments(List<Document> documentList) {
     documentBlockingQueue.addAll(documentList);
+  }
+
+  @Override
+  public void addDocument(String documentId) {
+    documentsMapCurrentlyInUse.put(documentId, true);
+  }
+
+  @Override
+  public boolean isDocumentUsed(String documentId) {
+    return documentsMapCurrentlyInUse.containsKey(documentId);
+  }
+
+  @Override
+  public void deleteDocument(String documentId) {
+    documentsMapCurrentlyInUse.remove(documentId);
   }
 }

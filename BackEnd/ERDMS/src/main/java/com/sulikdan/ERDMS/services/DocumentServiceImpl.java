@@ -92,6 +92,7 @@ public class DocumentServiceImpl implements DocumentService {
               .filePath(null)
               .documentFile(ArrayUtils.toObject(file.getBytes()))
               .documentAsBytes(file.getBytes())
+              .docConfig(docConfig)
               .asyncApiInfo(
                   new AsyncApiInfo(
                       docConfig.getScanImmediately()
@@ -101,9 +102,9 @@ public class DocumentServiceImpl implements DocumentService {
                       null))
               .build();
 
-
       uploadedDocs.add(docToProcess);
-      // TODO consider to send all files together not seperately && not atomic in mongoDB if send together
+      // TODO consider to send all files together not seperately && not atomic in mongoDB if send
+      // together
       createNewDocument(docToProcess);
     }
 
@@ -119,7 +120,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     // Scan doc job
     if (document.getDocConfig().getScanImmediately()) {
-      taskExecutor.execute(new OcrApiJobWorker(ocrService, this, documentRepository, document));
+      virtualStorageService.addDocument(document.getId());
+      taskExecutor.execute(new OcrApiJobWorker(ocrService, this, documentRepository, virtualStorageService, document));
     }
 
     return saved;

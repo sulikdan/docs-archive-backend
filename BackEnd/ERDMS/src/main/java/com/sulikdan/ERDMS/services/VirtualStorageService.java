@@ -11,6 +11,7 @@ import java.util.List;
  */
 public interface VirtualStorageService {
 
+// Blocking Queue methods
   Document getNextDocument();
 
   Document popNextDocument();
@@ -18,4 +19,11 @@ public interface VirtualStorageService {
   void addDocument(Document document);
 
   void addDocuments(List<Document> documentList);
+
+//  ConcurrentHashMap methods
+  void addDocument(String documentId);
+
+  boolean isDocumentUsed(String documentId);
+
+  void deleteDocument(String documentId);
 }
