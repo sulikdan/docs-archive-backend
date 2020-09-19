@@ -35,19 +35,16 @@ public class DocConfig {
     this.scanImmediately = scanImmediately;
   }
 
-//  public LinkedMultiValueMap getOcrPropertiesAsMap(){
-//    LinkedMultiValueMap map = new LinkedMultiValueMap();
-//    map.add("highQuality",highQuality.toString());
-//    map.add("multiPage",multiPage.toString());
-//    map.add("lang",lang.toString());
-//    return map;
-//  }
-
   public Map<String,String> getOcrPropertiesAsMap_X(){
     Map<String,String> map = new HashMap<>();
     map.put("highQuality",highQuality.toString());
     map.put("multiPageFile",multiPage.toString());
     map.put("lang",lang.toString());
     return map;
+  }
+
+  @Override
+  public String toString() {
+    return "DocConfig{" + "highQuality=" + highQuality + ", multiPage=" + multiPage + ", lang='" + lang + '\'' + ", scanImmediately=" + scanImmediately + '}';
   }
 }

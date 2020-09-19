@@ -9,11 +9,11 @@ import java.io.File;
  * @version 1.0
  * @since 25-Jul-20
  */
-public class DocumentJob {
+public class DocJob {
 
   private String id;
   private String nameOfFile;
-  private Document document;
+  private Doc doc;
   private File storedFile;
   private AsyncApiInfo asyncApiInfo;
 }

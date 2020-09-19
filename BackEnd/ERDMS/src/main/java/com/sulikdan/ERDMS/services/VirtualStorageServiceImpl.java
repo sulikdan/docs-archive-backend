@@ -1,6 +1,6 @@
 package com.sulikdan.ERDMS.services;
 
-import com.sulikdan.ERDMS.entities.Document;
+import com.sulikdan.ERDMS.entities.Doc;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,42 +16,42 @@ import java.util.concurrent.LinkedBlockingDeque;
 @Service
 public class VirtualStorageServiceImpl implements VirtualStorageService {
 
-  private final BlockingQueue<Document> documentBlockingQueue = new LinkedBlockingDeque<>();
+  private final BlockingQueue<Doc> docBlockingQueue = new LinkedBlockingDeque<>();
   private final ConcurrentHashMap<String, Boolean> documentsMapCurrentlyInUse =
       new ConcurrentHashMap<>();
 
   @Override
-  public Document getNextDocument() {
-    return documentBlockingQueue.peek();
+  public Doc getNextDoc() {
+    return docBlockingQueue.peek();
   }
 
   @Override
-  public Document popNextDocument() {
-    return documentBlockingQueue.poll();
+  public Doc popNextDoc() {
+    return docBlockingQueue.poll();
   }
 
   @Override
-  public void addDocument(Document document) {
-    documentBlockingQueue.offer(document);
+  public void addDoc(Doc doc) {
+    docBlockingQueue.offer(doc);
   }
 
   @Override
-  public void addDocuments(List<Document> documentList) {
-    documentBlockingQueue.addAll(documentList);
+  public void addDocs(List<Doc> docList) {
+    docBlockingQueue.addAll(docList);
   }
 
   @Override
-  public void addDocument(String documentId) {
+  public void addDoc(String documentId) {
     documentsMapCurrentlyInUse.put(documentId, true);
   }
 
   @Override
-  public boolean isDocumentUsed(String documentId) {
+  public boolean isDocUsed(String documentId) {
     return documentsMapCurrentlyInUse.containsKey(documentId);
   }
 
   @Override
-  public void deleteDocument(String documentId) {
+  public void deleteDoc(String documentId) {
     documentsMapCurrentlyInUse.remove(documentId);
   }
 }

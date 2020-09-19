@@ -1,9 +1,6 @@
 package com.sulikdan.ERDMS.services.ocr;
 
-import com.sulikdan.ERDMS.entities.DocConfig;
-import com.sulikdan.ERDMS.entities.Document;
-
-import java.util.List;
+import com.sulikdan.ERDMS.entities.Doc;
 
 /**
  * Created by Daniel Šulik on 22-Jul-20
@@ -16,7 +13,7 @@ import java.util.List;
  */
 public interface OCRService {
 
-  Document extractTextFromDocument(Document document);
+  Doc extractTextFromDoc(Doc doc);
 
 //  Document extractTextFromDocument(
 //      Document document, String language, Boolean multiPageFile, Boolean highQuality);

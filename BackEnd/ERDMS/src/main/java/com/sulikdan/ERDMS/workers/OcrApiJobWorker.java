@@ -1,9 +1,9 @@
 package com.sulikdan.ERDMS.workers;
 
 import com.sulikdan.ERDMS.entities.AsyncApiState;
-import com.sulikdan.ERDMS.entities.Document;
-import com.sulikdan.ERDMS.repositories.DocumentRepository;
-import com.sulikdan.ERDMS.services.DocumentService;
+import com.sulikdan.ERDMS.entities.Doc;
+import com.sulikdan.ERDMS.repositories.DocRepository;
+import com.sulikdan.ERDMS.services.DocService;
 import com.sulikdan.ERDMS.services.VirtualStorageService;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,19 +19,19 @@ import org.springframework.scheduling.annotation.Async;
 public class OcrApiJobWorker implements Runnable {
 
   private OCRService ocrService;
-  private DocumentService documentService;
-  private DocumentRepository documentRepository;
+  private DocService docService;
+  private DocRepository documentRepository;
   private VirtualStorageService virtualStorageService;
-  private Document document;
+  private Doc doc;
 
   public OcrApiJobWorker(
-          OCRService ocrService, DocumentService documentService, DocumentRepository documentRepository,
-          VirtualStorageService virtualStorageService, Document document) {
-    this.ocrService            = ocrService;
-    this.documentService       = documentService;
-    this.documentRepository    = documentRepository;
-    this.virtualStorageService = virtualStorageService;
-    this.document              = document;
+          OCRService ocrService, DocService docService, DocRepository documentRepository,
+          VirtualStorageService virtualStorageService, Doc doc) {
+    this.ocrService         = ocrService;
+    this.docService         = docService;
+    this.documentRepository = documentRepository;
+      this.virtualStorageService = virtualStorageService;
+      this.doc                   = doc;
   }
 
   @Override
@@ -39,21 +39,26 @@ public class OcrApiJobWorker implements Runnable {
 
     log.info("Running OcrApiJobWorker.");
 
-    AsyncApiState lastState = document.getAsyncApiInfo().getAsyncApiState();
-    Document returned = document;
+    AsyncApiState lastState = doc.getAsyncApiInfo().getAsyncApiState();
+    Doc returned = doc;
 
+    int whileCounter = 0;
     // reapeat communication till there is change and its succesfull
     do {
-      lastState = document.getAsyncApiInfo().getAsyncApiState();
-      returned = ocrService.extractTextFromDocument(document);
+      lastState = doc.getAsyncApiInfo().getAsyncApiState();
+      returned = ocrService.extractTextFromDoc(doc);
 
-      if (returned != null) documentService.saveDocument(returned);
+      if (returned != null) docService.saveDoc(returned);
+      if ( whileCounter++ >= 10 ){
+        log.error("Counter reached more than it should!");
+        break;
+      }
 
     } while (returned != null
         && returned.getAsyncApiInfo().getAsyncApiState() != lastState
         && returned.getAsyncApiInfo().getAsyncApiState() != AsyncApiState.COMPLETED);
 
-    virtualStorageService.deleteDocument(document.getId());
+    virtualStorageService.deleteDoc(doc.getId());
 
     log.info("Finished OcrApiJobWorker.");
   }

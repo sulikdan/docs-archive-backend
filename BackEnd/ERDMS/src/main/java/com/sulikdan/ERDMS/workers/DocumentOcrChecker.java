@@ -1,10 +1,10 @@
 package com.sulikdan.ERDMS.workers;
 
 import com.sulikdan.ERDMS.entities.AsyncApiState;
-import com.sulikdan.ERDMS.entities.Document;
-import com.sulikdan.ERDMS.repositories.DocumentMongoRepository;
-import com.sulikdan.ERDMS.repositories.DocumentRepository;
-import com.sulikdan.ERDMS.services.DocumentService;
+import com.sulikdan.ERDMS.entities.Doc;
+import com.sulikdan.ERDMS.repositories.DocRepository;
+import com.sulikdan.ERDMS.repositories.mongo.DocCustomRepository;
+import com.sulikdan.ERDMS.services.DocService;
 import com.sulikdan.ERDMS.services.VirtualStorageService;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,55 +32,55 @@ public class DocumentOcrChecker {
 
   private final BeanFactory beanFactory;
 
-  private final DocumentService documentService;
-  private final DocumentMongoRepository documentMongoRepository;
-  private final DocumentRepository documentRepository;
+  private final DocService docService;
+//  private final DocCustomRepository customRepository;
+  private final DocRepository documentRepository;
   private final VirtualStorageService virtualStorageService;
 
   public DocumentOcrChecker(
       TaskExecutor taskExecutor,
       BeanFactory beanFactory,
-      DocumentService documentService,
-      DocumentMongoRepository documentMongoRepository,
-      DocumentRepository documentRepository,
+      DocService docService,
+//      DocCustomRepository customRepository,
+      DocRepository documentRepository,
       VirtualStorageService virtualStorageService) {
     this.taskExecutor = taskExecutor;
-    this.beanFactory = beanFactory;
-    this.documentService = documentService;
-    this.documentMongoRepository = documentMongoRepository;
+    this.beanFactory      = beanFactory;
+    this.docService       = docService;
+//    this.customRepository = customRepository;
     this.documentRepository = documentRepository;
     this.virtualStorageService = virtualStorageService;
   }
 
   // 2min -> 120000milis
   @Scheduled(fixedDelay = 60000) // (120000/2), initialDelay = (120000/2))
-  public void checkUnscannedDocuments() {
+  public void checkUnscannedDocs() {
     log.info("Started DocumentOcrChecker!");
 
     //    TODO add pageLimit ...
     // find completed -> to be deleted? -- may not be needed
-    List<Document> cleaningDocs =
+    List<Doc> cleaningDocs =
         documentRepository.findDocumentsByAsyncApiInfoAsyncApiState(
             AsyncApiState.RESOURCE_TO_CLEAN);
     //        documentService.finDocumentsByAsyncApiState(AsyncApiState.RESOURCE_TO_CLEAN);
 
     // find processed -> to download
-    List<Document> completedDocs =
+    List<Doc> completedDocs =
         documentRepository.findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState.SCANNED);
     //        documentService.finDocumentsByAsyncApiState(AsyncApiState.SCANNED);
 
     //    check status
-    List<Document> processingDocs =
+    List<Doc> processingDocs =
         documentRepository.findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState.PROCESSING);
     //        documentService.finDocumentsByAsyncApiState(AsyncApiState.PROCESSING);
 
     // find to_be_send -> to process not yet processed
-    List<Document> waitingToSendDocs =
+    List<Doc> waitingToSendDocs =
         documentRepository.findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState.WAITING_TO_SEND);
     //        documentService.finDocumentsByAsyncApiState(AsyncApiState.WAITING_TO_SEND);
 
     // TODO pick ration betweenThem
-    List<Document> documentsWork = new ArrayList<>(completedDocs);
+    List<Doc> documentsWork = new ArrayList<>(completedDocs);
     documentsWork.addAll(processingDocs);
     documentsWork.addAll(waitingToSendDocs);
     documentsWork.addAll(cleaningDocs);
@@ -88,11 +88,11 @@ public class DocumentOcrChecker {
     // filtering documents already in process
     documentsWork =
         documentsWork.stream()
-            .filter(document -> !virtualStorageService.isDocumentUsed(document.getId()))
+            .filter(document -> !virtualStorageService.isDocUsed(document.getId()))
             .collect(Collectors.toList());
 
     // add docs to virtual storage
-    documentsWork.forEach(document -> virtualStorageService.addDocument(document.getId()));
+    documentsWork.forEach(document -> virtualStorageService.addDoc(document.getId()));
 
     // pick subset of them with ratio to each group
     //    TODO every service/repo new instance??
@@ -100,8 +100,7 @@ public class DocumentOcrChecker {
         document1 ->
             taskExecutor.execute(
                 new OcrApiJobWorker(
-                    beanFactory.getBean(OCRService.class),
-                    documentService,
+                    beanFactory.getBean(OCRService.class), docService,
                     documentRepository,
                     virtualStorageService,
                     document1)));

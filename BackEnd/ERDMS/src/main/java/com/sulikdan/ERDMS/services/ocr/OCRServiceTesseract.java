@@ -2,7 +2,7 @@ package com.sulikdan.ERDMS.services.ocr;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sulikdan.ERDMS.entities.*;
-import com.sulikdan.ERDMS.repositories.DocumentRepository;
+import com.sulikdan.ERDMS.repositories.DocRepository;
 import com.sulikdan.ERDMS.services.statics.OcrRestApiSettings;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,59 +23,59 @@ import java.util.stream.Collectors;
 @Service
 public class OCRServiceTesseract extends OcrRestApiSettings implements OCRService {
 
-  private final  DocumentRepository documentRepository;
+  private final DocRepository documentRepository;
   private final RestApiOcr restApiOcr;
   private final ObjectMapper mapper = new ObjectMapper();
   private final String SPLIT_PATTERN = "/ocr";
 
 
-  public OCRServiceTesseract(DocumentRepository documentRepository, RestApiOcr restApiOcr) {
+  public OCRServiceTesseract(DocRepository documentRepository, RestApiOcr restApiOcr) {
     this.documentRepository = documentRepository;
     this.restApiOcr = restApiOcr;
   }
 
   @Override
-  public Document extractTextFromDocument(Document document) {
+  public Doc extractTextFromDoc(Doc doc) {
     try {
-      if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.WAITING_TO_SEND) {
+      if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.WAITING_TO_SEND || doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.MANUAL_SENDING) {
         // TODO check what kind of file it is!
         // TODO Or set DocumentType Before??
         //        document.
 
-        AsyncApiInfo result = restApiOcr.postDocumentRequest(document);
+        AsyncApiInfo result = restApiOcr.postDocRequest(doc);
         if (result == null) return null;
 
-        document.setAsyncApiInfo(result);
+        doc.setAsyncApiInfo(result);
 
-      } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.PROCESSING) {
+      } else if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.PROCESSING) {
         // Checking document status
         String statusUri =
-            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocStatus(), SPLIT_PATTERN);
+            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocStatus(), SPLIT_PATTERN);
 
-        AsyncApiInfo asyncApiInfo = restApiOcr.getDocumentStatus(statusUri);
+        AsyncApiInfo asyncApiInfo = restApiOcr.getDocStatus(statusUri);
         if (asyncApiInfo == null) return null;
 
-        document.setAsyncApiInfo(asyncApiInfo);
+        doc.setAsyncApiInfo(asyncApiInfo);
 
-      } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.SCANNED) {
+      } else if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.SCANNED) {
         //    Downloading scanned document
         String resultUri =
-            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
+            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
 
-        TessApiDoc resultDoc = restApiOcr.getDocumentResult(resultUri);
+        TessApiDoc resultDoc = restApiOcr.getDocResult(resultUri);
         if (resultDoc == null) return null;
 
-        document.setPageList(
+        doc.setPageList(
             resultDoc.getPages().stream().map(Page::new).collect(Collectors.toList()));
-        document.getAsyncApiInfo().setAsyncApiState(AsyncApiState.RESOURCE_TO_CLEAN);
+        doc.getAsyncApiInfo().setAsyncApiState(AsyncApiState.RESOURCE_TO_CLEAN);
 
-      } else if (document.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.RESOURCE_TO_CLEAN) {
+      } else if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.RESOURCE_TO_CLEAN) {
         //        deleting resources
         String resultUri =
-            extractUriFromWholeURL(document.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
+            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
 
-        if (restApiOcr.deleteDocument(resultUri)) {
-          document.getAsyncApiInfo().setAsyncApiState(AsyncApiState.COMPLETED);
+        if (restApiOcr.deleteDoc(resultUri)) {
+          doc.getAsyncApiInfo().setAsyncApiState(AsyncApiState.COMPLETED);
         }
 
       } else {
@@ -87,7 +87,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
       e.printStackTrace();
     }
 
-    return document;
+    return doc;
   }
 
   /**

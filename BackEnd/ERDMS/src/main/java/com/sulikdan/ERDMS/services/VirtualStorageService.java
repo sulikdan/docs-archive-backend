@@ -1,6 +1,6 @@
 package com.sulikdan.ERDMS.services;
 
-import com.sulikdan.ERDMS.entities.Document;
+import com.sulikdan.ERDMS.entities.Doc;
 
 import java.util.List;
 
@@ -12,18 +12,18 @@ import java.util.List;
 public interface VirtualStorageService {
 
 // Blocking Queue methods
-  Document getNextDocument();
+  Doc getNextDoc();
 
-  Document popNextDocument();
+  Doc popNextDoc();
 
-  void addDocument(Document document);
+  void addDoc(Doc doc);
 
-  void addDocuments(List<Document> documentList);
+  void addDocs(List<Doc> docList);
 
 //  ConcurrentHashMap methods
-  void addDocument(String documentId);
+  void addDoc(String documentId);
 
-  boolean isDocumentUsed(String documentId);
+  boolean isDocUsed(String documentId);
 
-  void deleteDocument(String documentId);
+  void deleteDoc(String documentId);
 }

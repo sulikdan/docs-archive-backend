@@ -1,7 +1,9 @@
 package com.sulikdan.ERDMS.repositories;
 
 import com.sulikdan.ERDMS.entities.AsyncApiState;
-import com.sulikdan.ERDMS.entities.Document;
+import com.sulikdan.ERDMS.entities.Doc;
+import com.sulikdan.ERDMS.repositories.mongo.DocCustomRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
@@ -17,10 +19,14 @@ import java.util.List;
  * @since 18-Jul-20
  */
 // @Repository
-public interface DocumentRepository extends CrudRepository<Document, String> {
+//public interface DocRepository extends CrudRepository<Doc, String> {
+public interface DocRepository extends MongoRepository<Doc, String>, DocCustomRepository {
 //  TODO  check if save updates -- looks like its smart AF
   // public interface DocumentRepository extends JpaRepository<Document, String> {
 
-    List<Document> findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState asyncApiState);
+    List<Doc> findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState asyncApiState);
+
+    List<Doc> findDocumentsBy  (List<String> id);
+
 
 }

@@ -8,11 +8,15 @@ import lombok.Setter;
 import java.util.Date;
 
 /**
- * Class AsyncDocument is used for .....
+ * Class AsyncDocument is used for storing date about current doc status on OCR.
+ * Careful with URIs changes.
+ * @implNote When AsyncApiState changed manually, it may cause Nullpointer exception, while trying
+ * to communicate with OCR. Recommended is to changed it only to states WAITING_TO_SEND & COMPLETED.
  *
  * @author Daniel Šulik
  * @version 1.0
  * @since 22-Jul-20
+ *
  */
 @Getter
 @Setter

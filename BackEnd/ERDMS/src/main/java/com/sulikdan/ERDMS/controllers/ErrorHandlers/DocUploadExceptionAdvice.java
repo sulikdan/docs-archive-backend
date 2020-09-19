@@ -13,14 +13,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.io.IOException;
 
 /**
- * Class DocumentUploadExceptionAdvice is used for .....
+ * Class DocUploadExceptionAdvice is used for .....
  *
  * @author Daniel Šulik
  * @version 1.0
  * @since 09-Jul-20
  */
 @ControllerAdvice
-public class DocumentUploadExceptionAdvice extends ResponseEntityExceptionHandler {
+public class DocUploadExceptionAdvice extends ResponseEntityExceptionHandler {
 
   //    @ExceptionHandler(TesseractException.class)
   //    public ResponseEntity<String> handleTesseractException(Exception e) {

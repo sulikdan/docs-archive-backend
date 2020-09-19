@@ -1,14 +1,10 @@
 package com.sulikdan.ERDMS.services;
 
-import com.sulikdan.ERDMS.entities.AsyncApiInfo;
-import com.sulikdan.ERDMS.entities.AsyncApiState;
-import com.sulikdan.ERDMS.entities.DocConfig;
-import com.sulikdan.ERDMS.entities.Document;
-import com.sulikdan.ERDMS.repositories.DocumentRepository;
+import com.sulikdan.ERDMS.entities.*;
+import com.sulikdan.ERDMS.repositories.DocRepository;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
 import com.sulikdan.ERDMS.workers.OcrApiJobWorker;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,10 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -32,7 +25,7 @@ import java.util.stream.StreamSupport;
  */
 @Slf4j
 @Service
-public class DocumentServiceImpl implements DocumentService {
+public class DocServiceImpl implements DocService {
 
   private TaskExecutor taskExecutor;
 
@@ -42,24 +35,29 @@ public class DocumentServiceImpl implements DocumentService {
   private final FileStorageService fileStorageService;
 
   // repos
-  private final DocumentRepository documentRepository;
+  private final DocRepository documentRepository;
 
-  public DocumentServiceImpl(
+  private final Set<String> mapSortColumns;
+
+  public DocServiceImpl(
       TaskExecutor taskExecutor,
       OCRService ocrService,
       VirtualStorageService virtualStorageService,
       FileStorageService fileStorageService,
-      DocumentRepository documentRepository) {
+      DocRepository documentRepository) {
     this.taskExecutor = taskExecutor;
     this.ocrService = ocrService;
     this.virtualStorageService = virtualStorageService;
     this.fileStorageService = fileStorageService;
     this.documentRepository = documentRepository;
+
+    String[] columnsChoices = {"id", "state", "language", "createddatetime", "updateddatetime"};
+    mapSortColumns = new HashSet<>(Arrays.asList(columnsChoices));
   }
 
   @Override
-  public Document findDocumentById(String id) {
-    Optional<Document> optionalDocument = documentRepository.findById(id);
+  public Doc findDocById(String id) {
+    Optional<Doc> optionalDocument = documentRepository.findById(id);
 
     if (!optionalDocument.isPresent()) {
       log.warn(MessageFormat.format("Document with id={} not found!", id));
@@ -71,26 +69,24 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   @Override
-  public List<Document> findAllDocuments() {
-    List<Document> documentList = new ArrayList<>();
-    documentRepository.findAll().forEach(documentList::add);
-    return documentList;
+  public List<Doc> findAllDocs() {
+    List<Doc> docList = new ArrayList<>();
+    documentRepository.findAll().forEach(docList::add);
+    return docList;
   }
 
   @Override
-  public List<Document> processNewDocuments(MultipartFile[] files, DocConfig docConfig)
-      throws IOException {
-    List<Document> uploadedDocs = new ArrayList<>();
+  public List<Doc> processNewDocs(MultipartFile[] files, DocConfig docConfig) throws IOException {
+    List<Doc> uploadedDocs = new ArrayList<>();
 
     for (MultipartFile file : files) {
       //      Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
       //      log.info("SAved file to:" + savedFilePath.toString());
       log.info("Processing file: ");
-      Document docToProcess =
-          Document.builder()
-              .nameOfFile(file.getName())
+      Doc docToProcess =
+          Doc.builder()
+              .nameOfFile(file.getOriginalFilename())
               .filePath(null)
-              .documentFile(ArrayUtils.toObject(file.getBytes()))
               .documentAsBytes(file.getBytes())
               .docConfig(docConfig)
               .asyncApiInfo(
@@ -105,7 +101,7 @@ public class DocumentServiceImpl implements DocumentService {
       uploadedDocs.add(docToProcess);
       // TODO consider to send all files together not seperately && not atomic in mongoDB if send
       // together
-      createNewDocument(docToProcess);
+      createNewDoc(docToProcess);
     }
 
     // TODO change returned DOCS to DTO
@@ -113,15 +109,16 @@ public class DocumentServiceImpl implements DocumentService {
   }
 
   @Override
-  public Document createNewDocument(Document document) {
+  public Doc createNewDoc(Doc doc) {
 
-    Document saved = saveDocument(document);
+    Doc saved = saveDoc(doc);
     //    documentRepository.save(document);
 
     // Scan doc job
-    if (document.getDocConfig().getScanImmediately()) {
-      virtualStorageService.addDocument(document.getId());
-      taskExecutor.execute(new OcrApiJobWorker(ocrService, this, documentRepository, virtualStorageService, document));
+    if (doc.getDocConfig().getScanImmediately()) {
+      virtualStorageService.addDoc(doc.getId());
+      taskExecutor.execute(
+          new OcrApiJobWorker(ocrService, this, documentRepository, virtualStorageService, doc));
     }
 
     return saved;
@@ -130,18 +127,18 @@ public class DocumentServiceImpl implements DocumentService {
   //  @Transactional
   //  https://docs.mongodb.com/manual/core/write-operations-atomicity/
   @Override
-  public Document saveDocument(Document document) {
+  public Doc saveDoc(Doc doc) {
     //    TODO very dumb idea, but mongoSucks
-    document.setUpdateDateTime(LocalDateTime.now());
-    return documentRepository.save(document);
+    doc.setUpdateDateTime(LocalDateTime.now());
+    return documentRepository.save(doc);
   }
 
   //  @Transactional
   @Override
-  public void updateDocument(Document document) {
+  public void updateDocument(Doc doc) {
     //      TODO necessary? saveDocument should be enought
-    document.setUpdateDateTime(LocalDateTime.now());
-    documentRepository.save(document);
+    doc.setUpdateDateTime(LocalDateTime.now());
+    documentRepository.save(doc);
   }
 
   /**
@@ -163,9 +160,44 @@ public class DocumentServiceImpl implements DocumentService {
    * @return
    */
   @Override
-  public List<Document> finDocumentsByAsyncApiState(AsyncApiState asyncApiState) {
+  public List<Doc> finDocumentsByAsyncApiState(AsyncApiState asyncApiState) {
     return StreamSupport.stream(documentRepository.findAll().spliterator(), false)
         .filter(document -> document.getAsyncApiInfo().getAsyncApiState().equals(asyncApiState))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<Doc> findDocsUsingSearchParams(SearchDocParams searchDocParams, int page, int size) {
+
+    //    TODO 2. convert DTO to normal object
+
+    //    TODO 1.
+    //    Here the columns should be checked!!!
+    //    If columns ...
+    checkSortColumn(searchDocParams);
+
+    return documentRepository.findDocsByMultipleArgs(searchDocParams, page, size);
+  }
+
+  private void checkSortColumn(SearchDocParams searchDocParams) {
+
+    searchDocParams.setColumnSortList(
+        searchDocParams.getColumnSortList().stream()
+            .map(String::toLowerCase)
+            .collect(Collectors.toList()));
+
+    if (searchDocParams.getColumnSortList().size() > mapSortColumns.size()) {
+      //      TODO error
+      throw new RuntimeException("TODO later");
+    }
+
+    Set<String> tmpSet = new HashSet<>(searchDocParams.getColumnSortList());
+    if (tmpSet.size() < searchDocParams.getColumnSortList().size())
+      throw new RuntimeException("Wrong input, duplicates found");
+
+    for (String column : searchDocParams.getColumnSortList()) {
+      if (!mapSortColumns.contains(column))
+        throw new RuntimeException("Bad request - unsupported column.");
+    }
   }
 }
