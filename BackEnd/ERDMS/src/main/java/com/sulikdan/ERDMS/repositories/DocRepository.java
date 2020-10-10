@@ -8,8 +8,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
 
-// import org.springframework.data.jpa.repository.JpaRepository;
-
 /**
  * Class DocumentRepository is repo using CrudRepository to get access to DB, with all default CRUD
  * operations and more methods.
@@ -18,8 +16,7 @@ import java.util.List;
  * @version 1.0
  * @since 18-Jul-20
  */
-// @Repository
-//public interface DocRepository extends CrudRepository<Doc, String> {
+
 public interface DocRepository extends MongoRepository<Doc, String>, DocCustomRepository {
 //  TODO  check if save updates -- looks like its smart AF
   // public interface DocumentRepository extends JpaRepository<Document, String> {
