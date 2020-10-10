@@ -65,8 +65,8 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
         TessApiDoc resultDoc = restApiOcr.getDocResult(resultUri);
         if (resultDoc == null) return null;
 
-        doc.setPageList(
-            resultDoc.getPages().stream().map(Page::new).collect(Collectors.toList()));
+        doc.setDocPageList(
+            resultDoc.getPages().stream().map(DocPage::new).collect(Collectors.toList()));
         doc.getAsyncApiInfo().setAsyncApiState(AsyncApiState.RESOURCE_TO_CLEAN);
 
       } else if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.RESOURCE_TO_CLEAN) {

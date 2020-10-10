@@ -5,10 +5,16 @@ import com.sulikdan.ERDMS.repositories.DocRepository;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
 import com.sulikdan.ERDMS.workers.OcrApiJobWorker;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.task.TaskExecutor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -80,14 +86,13 @@ public class DocServiceImpl implements DocService {
     List<Doc> uploadedDocs = new ArrayList<>();
 
     for (MultipartFile file : files) {
-      //      Path savedFilePath = fileStorageService.saveFile(file, generateNamePrefix());
-      //      log.info("SAved file to:" + savedFilePath.toString());
+
       log.info("Processing file: ");
       Doc docToProcess =
           Doc.builder()
               .nameOfFile(file.getOriginalFilename())
-              .filePath(null)
               .documentAsBytes(file.getBytes())
+              .documentPreview(createThumbnail(file, 150).toByteArray())
               .docConfig(docConfig)
               .asyncApiInfo(
                   new AsyncApiInfo(
@@ -106,6 +111,11 @@ public class DocServiceImpl implements DocService {
 
     // TODO change returned DOCS to DTO
     return uploadedDocs;
+  }
+
+  @Override
+  public void deleteDocumentById(String id) {
+    documentRepository.deleteById(id);
   }
 
   @Override
@@ -167,16 +177,17 @@ public class DocServiceImpl implements DocService {
   }
 
   @Override
-  public List<Doc> findDocsUsingSearchParams(SearchDocParams searchDocParams, int page, int size) {
+  public Page<Doc> findDocsUsingSearchParams(
+      SearchDocParams searchDocParams, Integer page, Integer size) {
 
-    //    TODO 2. convert DTO to normal object
+    searchDocParams.setPageIndex(page);
+    searchDocParams.setPageSize(size);
 
-    //    TODO 1.
-    //    Here the columns should be checked!!!
-    //    If columns ...
     checkSortColumn(searchDocParams);
 
-    return documentRepository.findDocsByMultipleArgs(searchDocParams, page, size);
+    Page<Doc> foundDocPages = documentRepository.findDocsByMultipleArgs(searchDocParams);
+
+    return foundDocPages;
   }
 
   private void checkSortColumn(SearchDocParams searchDocParams) {
@@ -199,5 +210,33 @@ public class DocServiceImpl implements DocService {
       if (!mapSortColumns.contains(column))
         throw new RuntimeException("Bad request - unsupported column.");
     }
+  }
+
+  private ByteArrayOutputStream createThumbnail(MultipartFile orginalFile, Integer width)
+      throws IOException {
+    //    ByteArrayOutputStream thumbOutput = new ByteArrayOutputStream();
+    //    BufferedImage thumbImg = null;
+    //    BufferedImage img = ImageIO.read(orginalFile.getInputStream());
+    //    thumbImg =
+    //        Scalr.resize(img, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, width,
+    // Scalr.OP_ANTIALIAS);
+    //    ImageIO.write(thumbImg, orginalFile.getContentType().split("/")[1], thumbOutput);
+    //    log.info("--"+ thumbOutput.toByteArray().toString() +"--");
+    //    return thumbOutput;
+    //    BufferedImage img = ImageIO.read(orginalFile.getInputStream());
+    //    ByteArrayOutputStream imgStrema;
+    ////    orginalFile.
+    //    return  Thumbnails.of(img).scale(0.25).asBufferedImage();
+    String extension = FilenameUtils.getExtension(orginalFile.getOriginalFilename());
+
+    log.warn("Content type" + orginalFile);
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    BufferedImage originalImage = ImageIO.read(orginalFile.getInputStream());
+
+    Thumbnails.of(originalImage)
+        .size(200, 200)
+        .outputFormat(extension)
+        .toOutputStream(outputStream);
+    return outputStream;
   }
 }

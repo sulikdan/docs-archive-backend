@@ -13,7 +13,9 @@ import com.sulikdan.ERDMS.entities.SearchDocParams;
 import com.sulikdan.ERDMS.exceptions.UnsupportedLanguage;
 import com.sulikdan.ERDMS.services.DocService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.hateoas.CollectionModel;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.http.HttpStatus;
@@ -21,11 +23,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,29 +42,28 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
  */
 @Slf4j
 @RestController
-@CrossOrigin(origins = {"http://localhost:4200/import", "http://localhost:4200"})
+@CrossOrigin(
+    origins = {
+      "http://localhost:4200/import",
+      "http://localhost:4200",
+      "http://localhost:4200/documents"
+    })
 @RequestMapping("api/documents")
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 public class DocController {
 
   private final DocService docService;
   private final DocDtoConverter docDtoConverter;
-
-  ObjectMapper mapper;
+  private final ModelMapper modelMappper;
+  private final ObjectMapper mapper;
 
   public DocController(DocService docService, DocDtoConverter docDtoConverter) {
-    this.docService      = docService;
+    this.docService = docService;
     this.docDtoConverter = docDtoConverter;
-    this.mapper          = new ObjectMapper();
+    this.modelMappper = new ModelMapper();
+    this.mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-  }
-
-  private static String generateUriForAsyncStatus(
-      Path filePath, String methodName, String methodUri) {
-    return MvcUriComponentsBuilder.fromController(DocController.class).toString()
-        + methodUri
-        + filePath.getFileName().toString();
   }
 
   @ResponseBody
@@ -79,7 +77,6 @@ public class DocController {
       throws JsonProcessingException, IOException {
     log.info("Getting file.");
 
-    log.info("Amount of files: " + String.valueOf(files.length));
     // check language
     checkSupportedLanguages(lang);
 
@@ -88,62 +85,165 @@ public class DocController {
 
     log.info("Doc settigns: " + docConfig.toString());
 
-    // TODO change documents to something else(TDO), not to contain everything, just base stuff ...
     List<Doc> uploadedDocList = docService.processNewDocs(files, docConfig);
 
-    log.info("File processed: " + uploadedDocList.size());
+    List<DocDto> foundDocDtos = convertDocToDocDtoWithLinks(uploadedDocList);
 
     return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(uploadedDocList));
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundDocDtos));
   }
 
   @GetMapping(value = "/{documentId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> getDoc(String documentId) throws JsonProcessingException {
+  public ResponseEntity<String> getDoc(@PathVariable String documentId)
+      throws JsonProcessingException {
 
     Doc toReturn = docService.findDocById(documentId);
 
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toReturn));
+    if (toReturn != null) {
+
+      DocDto toReturnDocDto = docDtoConverter.convertToDto(toReturn);
+      Link selfLink = linkTo(DocController.class).slash(toReturnDocDto.getId()).withSelfRel();
+      toReturnDocDto.add(selfLink);
+
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toReturnDocDto));
+
+    } else {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND)
+          .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(""));
+    }
   }
 
   @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> getDocs(
-      UriComponentsBuilder builder,
-      SearchDocParams searchDocParams,
-      @RequestParam(value = "page", defaultValue = "1") int page,
-      @RequestParam(value = "size", defaultValue = "25") int size)
+  public ResponseEntity<String> getDocs(String searchDocParams) throws JsonProcessingException {
+
+    if (searchDocParams == null) {
+      log.info("SearchDocParam is empty!");
+    } else {
+      log.info("SearchDocParams length: " + searchDocParams.length());
+    }
+
+    SearchDocParams convertedParams = null;
+    try {
+      convertedParams = mapper.readValue(searchDocParams, SearchDocParams.class);
+    } catch (Exception e) {
+      System.out.println("it fucked..");
+      System.out.println(e.getMessage());
+    }
+
+    log.info("Search doc params input:" + searchDocParams.toString());
+    log.info("Search doc params mapped:" + convertedParams.toString());
+
+    Page<Doc> pagedDocs;
+    if (convertedParams != null
+        && convertedParams.getPageIndex() != null
+        && convertedParams.getPageSize() != null) {
+      pagedDocs =
+          docService.findDocsUsingSearchParams(
+              convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize());
+    } else {
+      log.warn("Called default doc search.");
+      pagedDocs = docService.findDocsUsingSearchParams(convertedParams, 0, 20);
+    }
+    //    Page<Doc> pagedDocs = docService.findDocsUsingSearchParams(searchDocParams, page, size);
+    Page<DocDto> pagedDocDtos = convertDocToDocDtoWithLinks(pagedDocs);
+
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(pagedDocDtos));
+  }
+
+  @GetMapping(value = "/{documentId}/file", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+  public ResponseEntity<byte[]> getDocFile(@PathVariable String documentId)
       throws JsonProcessingException {
 
-    if (searchDocParams == null) searchDocParams = new SearchDocParams();
+    Doc foundDoc = docService.findDocById(documentId);
 
-    //    TODO 2. catch errows?
-
-    List<Doc> foundDocs = docService.findDocsUsingSearchParams(searchDocParams, page, size);
-    List<DocDto> docDtos = new ArrayList<>();
-
-    for (Doc doc : foundDocs) {
-      DocDto docDto = docDtoConverter.convertToDto(doc);
-      Link selfLink = linkTo(DocController.class).slash(docDto.getId()).withSelfRel();
-      docDto.add(selfLink);
-      docDtos.add(docDto);
+    if (foundDoc != null) {
+      return ResponseEntity.status(HttpStatus.OK)
+          .header(
+              "Content-Disposition", "attachment; filename=\"" + foundDoc.getNameOfFile() + "\"")
+          .body(foundDoc.getDocumentAsBytes());
+      //      return foundDoc.getDocumentAsBytes();
+    } else {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
-//
-    Link link = linkTo(DocController.class).withSelfRel();
-    CollectionModel<DocDto> docs = CollectionModel.of(docDtos, link);
+  }
 
-//    return ResponseEntity.status(HttpStatus.OK)
-//        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundDocs));
+  @PostMapping("/search")
+  public ResponseEntity<String> filterDocs(@RequestBody SearchDocParams searchDocParams)
+      throws JsonProcessingException {
+    if (searchDocParams == null) {
+      log.warn("Filter is empty");
+    } else {
+      log.warn("Search doc: " + searchDocParams.toString());
+    }
+
     return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(docs));
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("empty"));
   }
 
   @PatchMapping(value = "/{id}")
+  public ResponseEntity<String> update(
+      @PathVariable("id") final String id, @RequestBody String updateDoc)
+      throws JsonProcessingException {
+    log.info("Patching.." + updateDoc);
+    Preconditions.checkNotNull(updateDoc);
+
+    DocDto docDtoResource = null;
+    try{
+      docDtoResource = mapper.readValue(updateDoc, DocDto.class);
+    } catch (Exception e){
+      log.info("It's distash!!");
+      log.info(e.getMessage());
+    }
+
+    log.info("DocDto resource:" + docDtoResource.toString());
+
+    log.info("Updating..");
+    Doc docResourece = docDtoConverter.convertToEntity(docDtoResource);
+    log.info("Converted: " + docResourece.toString());
+
+    docService.updateDocument(docResourece);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("OK"));
+  }
+
+  @DeleteMapping(value = "/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public void update(@PathVariable("id") final Long id, @RequestBody final Doc resource) {
-    Preconditions.checkNotNull(resource);
-    //    TODO
-    //    RestPreconditions.checkFound(service.findById(resource.getId()));
-    //    service.update(resource);
+  public void deleteDocument(@PathVariable("id") final String id) {
+    log.info("Deleting document:" + id);
+    docService.deleteDocumentById(id);
+  }
+
+  private Page<DocDto> convertDocToDocDtoWithLinks(Page<Doc> pagedDocList) {
+
+    List<DocDto> docDtos = new ArrayList<>();
+
+    for (Doc doc : pagedDocList.getContent()) {
+      docToDocDtoInList(docDtos, doc);
+    }
+
+    return new PageImpl<>(docDtos, pagedDocList.getPageable(), pagedDocList.getTotalElements());
+  }
+
+  private List<DocDto> convertDocToDocDtoWithLinks(List<Doc> docList) {
+
+    List<DocDto> docDtos = new ArrayList<>();
+
+    for (Doc doc : docList) {
+      docToDocDtoInList(docDtos, doc);
+    }
+
+    return docDtos;
+  }
+
+  private void docToDocDtoInList(List<DocDto> docDtos, Doc doc) {
+    DocDto docDto = docDtoConverter.convertToDto(doc);
+    Link selfLink = linkTo(DocController.class).slash(docDto.getId()).withSelfRel();
+    Link fileLink = linkTo(DocController.class).slash(docDto.getId()).slash("file").withRel("file");
+    docDto.add(selfLink);
+    docDto.add(fileLink);
+    docDtos.add(docDto);
   }
 
   /**

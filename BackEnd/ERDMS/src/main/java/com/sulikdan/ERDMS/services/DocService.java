@@ -4,6 +4,7 @@ import com.sulikdan.ERDMS.entities.AsyncApiState;
 import com.sulikdan.ERDMS.entities.DocConfig;
 import com.sulikdan.ERDMS.entities.Doc;
 import com.sulikdan.ERDMS.entities.SearchDocParams;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -67,8 +68,10 @@ public interface DocService {
    */
   List<Doc> processNewDocs(MultipartFile[] files, DocConfig docConfig) throws IOException;
 
+  void deleteDocumentById(String id);
+
   List<Doc> finDocumentsByAsyncApiState(AsyncApiState asyncApiState);
 
 
-  List<Doc> findDocsUsingSearchParams(SearchDocParams searchDocParams, int page, int size);
+  Page<Doc> findDocsUsingSearchParams(SearchDocParams searchDocParams, Integer page, Integer size);
 }

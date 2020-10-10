@@ -6,6 +6,7 @@ import com.sulikdan.ERDMS.entities.Doc;
 import com.sulikdan.ERDMS.entities.QDoc;
 import com.sulikdan.ERDMS.entities.SearchDocParams;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,7 +30,7 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
   }
 
   @Override
-  public List<Doc> findDocsByMultipleArgs(SearchDocParams searchDocParams, int page, int size) {
+  public Page<Doc> findDocsByMultipleArgs(SearchDocParams searchDocParams) {
 
     QDoc qDocument = new QDoc("doc");
     BooleanBuilder builder = new BooleanBuilder();
@@ -84,7 +85,10 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
       if (sort == null) sort = Sort.by(column);
       else sort = sort.and(Sort.by(column));
     }
+
     // TODO sort asc || desc not working when empty
+    int page = searchDocParams.getPageIndex();
+    int size = searchDocParams.getPageSize();
 
     Pageable pageable = null;
     if (sort != null) {
@@ -95,6 +99,7 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
       }
     } else {
       pageable = PageRequest.of(page, size);
+//      mongoRepository.
     }
 
     System.out.println("Builder values:\n"+builder.getValue().toString());
@@ -102,7 +107,7 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
 
 //    if (builder.hasValue()) {
 //      System.out.println("Was here without values...");
-      return (List<Doc>) mongoRepository.findAll(builder, pageable).getContent();
+      return mongoRepository.findAll(builder, pageable);
 //      }
 //    else return (List<Doc>) mongoRepository.findAll(pageable);
   }
