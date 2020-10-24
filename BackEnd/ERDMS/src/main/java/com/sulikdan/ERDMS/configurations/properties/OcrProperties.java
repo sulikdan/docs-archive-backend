@@ -1,0 +1,22 @@
+package com.sulikdan.ERDMS.configurations.properties;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Created by Daniel Šulik on 24-Oct-20
+ * <p>
+ * Class OcrProperties is used to get properties for Ocr.
+ */
+@Getter
+@Setter
+@Configuration
+@ConfigurationProperties(prefix = "ocr")
+public class OcrProperties {
+
+    private String port;
+    private String address;
+
+}
