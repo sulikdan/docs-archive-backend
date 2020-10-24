@@ -2,6 +2,7 @@ package com.sulikdan.ERDMS.repositories;
 
 import com.sulikdan.ERDMS.entities.Doc;
 import com.sulikdan.ERDMS.entities.SearchDocParams;
+import com.sulikdan.ERDMS.entities.users.User;
 import com.sulikdan.ERDMS.repositories.mongo.DocCustomRepository;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
@@ -28,19 +31,23 @@ import java.util.*;
 @EnableMongoRepositories(considerNestedRepositories = true)
 public class DocRepositoryIT {
 
-  @Autowired DocRepository documentRepository;
+  @Autowired private DocRepository documentRepository;
+  @Autowired private UserRepository userRepository;
+  @Autowired private PasswordEncoder bcryptEncoder;
 
   //  @Autowired
-  DocCustomRepository docCustomRepository;
+  private DocCustomRepository docCustomRepository;
+
+  private User user;
 
   List<Doc> docList;
 
   public DocRepositoryIT() {
-    Doc doc1 = Doc.builder().id("11xyz11").nameOfFile("JustRandomFile1.jpg").pageList(null).build();
-    Doc doc2 = Doc.builder().id("22xyz22").nameOfFile("JustRandomFile2.jpg").pageList(null).build();
+    Doc doc1 = Doc.builder().id("11xyz11").nameOfFile("JustRandomFile1.jpg").docPageList(null).build();
+    Doc doc2 = Doc.builder().id("22xyz22").nameOfFile("JustRandomFile2.jpg").docPageList(null).build();
     //                Document.builder().id(new
     // ObjectId().toString()).nameOfFile("JustRandomFile2.jpg").pageList(null).build();
-    Doc doc3 = Doc.builder().id("33xyz33").nameOfFile("JustRandomFile3.jpg").pageList(null).build();
+    Doc doc3 = Doc.builder().id("33xyz33").nameOfFile("JustRandomFile3.jpg").docPageList(null).build();
 
     docList = Arrays.asList(doc1, doc2, doc3);
   }
@@ -50,6 +57,16 @@ public class DocRepositoryIT {
     documentRepository.deleteAll();
 
     documentRepository.save(docList.get(0));
+
+    final String passwordEncoded = bcryptEncoder.encode("tester");
+    User user =
+            User.builder()
+                .email("yolouser@IdontKnow.com")
+                .username("tester")
+                .password(passwordEncoded)
+                .build();
+
+    userRepository.save(user);
 
     //    docCustomRepository = new DocCustomRepositoryImpl((DocMongoRepository)
     // documentRepository);
@@ -72,30 +89,34 @@ public class DocRepositoryIT {
 
     SearchDocParams docParams = new SearchDocParams();
     docParams.setIds(ids);
+    docParams.setPageIndex(0);
+    docParams.setPageSize(5);
 
     documentRepository.save(docList.get(1));
     documentRepository.save(docList.get(2));
 
     //    mongoRepository.findA
-    List<Doc> docsPage = documentRepository.findDocsByMultipleArgs(docParams, 0, 5);
-    //    List<Doc> docsList = docsPage.getContent();
-    System.out.println(documentRepository.findAll().size());
+    Page<Doc> pagedDocs = documentRepository.findDocsByMultipleArgs(docParams, user);
+    List<Doc> docsList = pagedDocs.getContent();
 
 
-    Assert.assertNotNull(docsPage);
-    Assert.assertEquals(ids.size(), docsPage.size());
+
+    Assert.assertNotNull(docsList);
+    Assert.assertEquals(ids.size(), docsList.size());
   }
 
   @Test
   void findDocsByMultipleArgsUsingDescSorting() {
     SearchDocParams docParams = new SearchDocParams();
+    docParams.setPageIndex(0);
+    docParams.setPageSize(5);
     docParams.setColumnSortList(Collections.singletonList("id"));
     docParams.setSortAscending(false);
 
     documentRepository.save(docList.get(1));
 
-    List<Doc> docsList = documentRepository.findDocsByMultipleArgs(docParams, 0, 5);
-    System.out.println(documentRepository.findAll().size());
+    Page<Doc> pagedDocsList = documentRepository.findDocsByMultipleArgs(docParams, user);
+    List<Doc> docsList = pagedDocsList.getContent();
 
 
     Assert.assertNotNull(docsList);

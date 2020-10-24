@@ -9,6 +9,8 @@ import com.sulikdan.ERDMS.services.ocr.OCRService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 
+import java.text.MessageFormat;
+
 /**
  * Created by Daniel Šulik on 25-Jul-20
  *
@@ -25,13 +27,16 @@ public class OcrApiJobWorker implements Runnable {
   private Doc doc;
 
   public OcrApiJobWorker(
-          OCRService ocrService, DocService docService, DocRepository documentRepository,
-          VirtualStorageService virtualStorageService, Doc doc) {
-    this.ocrService         = ocrService;
-    this.docService         = docService;
+      OCRService ocrService,
+      DocService docService,
+      DocRepository documentRepository,
+      VirtualStorageService virtualStorageService,
+      Doc doc) {
+    this.ocrService = ocrService;
+    this.docService = docService;
     this.documentRepository = documentRepository;
-      this.virtualStorageService = virtualStorageService;
-      this.doc                   = doc;
+    this.virtualStorageService = virtualStorageService;
+    this.doc = doc;
   }
 
   @Override
@@ -46,10 +51,31 @@ public class OcrApiJobWorker implements Runnable {
     // reapeat communication till there is change and its succesfull
     do {
       lastState = doc.getAsyncApiInfo().getAsyncApiState();
-      returned = ocrService.extractTextFromDoc(doc);
+
+      try {
+        returned = ocrService.extractTextFromDoc(doc);
+      } catch (Exception e) {
+        log.error(
+            MessageFormat.format(
+                "There was issue with OCR scanning document {0}.\n With error message: {1}.",
+                returned.getId(), e.getMessage()));
+
+        // remove from map containing docs in use
+        virtualStorageService.deleteDoc(returned.getId());
+
+        if( virtualStorageService.docFailedTimes(returned.getId()) >= 3 ){
+          returned.getAsyncApiInfo().setAsyncApiState(AsyncApiState.FAILED);
+          docService.saveDoc(returned);
+          continue;
+        }
+
+        virtualStorageService.addOrIncreaseFailedDoc(returned.getId());
+
+      }
 
       if (returned != null) docService.saveDoc(returned);
-      if ( whileCounter++ >= 10 ){
+      if (whileCounter++ >= 10) {
+        // TODO in case there is exception the doc is not deleted rom virtualStorage!!
         log.error("Counter reached more than it should!");
         break;
       }

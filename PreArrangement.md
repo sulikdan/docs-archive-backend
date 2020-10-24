@@ -250,7 +250,7 @@ Maybe later? Something simple:
 * Very "simple" approach avoiding big technologies
 * DB repo built on CrudRepo - easy to switch to different DB type, if supported
 
-### 24.7.2020
+### 25.7.2020
 * Careful JPA vs CrudRepo vs Hibernate
     * JPA not working well with MongoDB another reason to use different DB
 * reason why this:
@@ -258,3 +258,123 @@ Maybe later? Something simple:
     * I as "abroad" student have to take care of different documents
     * Neccessity to store documents required by law
     * In usefull for user to have them stored
+
+### 26.7.2020
+* Trouble how to do Async with two choices
+    * immediately
+    * periodically
+* How should exactly look API like ...
+    * all logic to service?
+    * API just converting and checking?
+
+
+### 01.08.2020
+* Lazy load document file??
+* Mention why springboot and not quark-whatever ... see reddit saved post test
+* using Webflux for sending requrest cost resttemplate is depracated ..?/
+* credRepo vs MongoRepo
+
+### 7.08.2020
+* Virtual memory to manage already queued docs to OCR - avoid rescanning a document multiple times
+* Users BE not yet implemented
+
+### 15.08.2020
+* Troubles with TimeStamp JPA
+    * use timestamp of BackEndApp .. not very good idea in App with multiple BE machines...
+    
+### 20.09.2020
+* Created "universal" REST api to get documents/paginated them
+    * supports finite amount of variables and they have to be manually added to repository function
+* Created DTO for Document
+* Document class renamed to Doc, because multiple usage of the nameing in spring and others libraries
+* REST api contains: 
+    * Post - new docs
+    * Patch - updating few values in docs
+    * Get - one document
+    * GetAll  - get multiple docs using pagination
+* HATEOS -  self link
+    * other links have to be added later
+* Trouble to decide, how to filter/search
+    * Get
+        * better choice as it can be cached or bookmarked(useless in myy case :X)
+        * limit around 2000+ chars
+    * Post
+        * cannot be cached?
+        * woudl need to create virtual resource, just for search ...        
+    
+* Angular
+    * 3 Main cards:
+        * Home
+        * Docs
+        * Import
+    * Also includes:
+        * login
+        * logout
+        * Registration with mail
+    * Auth guard for authentication
+    * Using JWT token to remember user
+    * visual libraries:
+        * overall bootstrap
+        * angular-material - for table view datas
+
+### 10.10.2020
+* Troubles with login and sign up
+* dont forget to enable less - https://myaccount.google.com/lesssecureapps
+* maybe update configs via startUpFile?
+
+### 22.10.2020
+* Setting up docker images....
+    * FE - angular
+    * BE
+        * mongoDB - current - 28555 -> 27017
+        * OcrApi - current - 8888 -> 8086 
+        * ERDMS
+        
+* ```docker run``` – Runs a command in a new container.
+* ```docker start``` – Starts one or more stopped containers
+* ```docker stop``` – Stops one or more running containers
+* ```docker build <path to docker file>``` – Builds an image form a Docker file
+* ```docker pull``` – Pulls an image or a repository from a registry
+* ```docker push <username/image name>``` – Pushes an image or a repository to a registry
+* ```docker export``` – Exports a container’s filesystem as a tar archive
+* ```docker exec``` – Runs a command in a run-time container
+* ```docker search``` – Searches the Docker Hub for images
+* ```docker attach``` – Attaches to a running container
+* ```docker commit <conatainer id> <username/imagename>``` – Creates a new image from a container’s changes
+
+* ```docker --version``` - get current installed version of docker
+* ```docker run -it -d <image name>``` -  used to create a container from an image
+* ```docker ps``` - list the running containers
+* ```docker ps -a``` - to show all the running and exited containers
+* ```docker exec -it <container id> bash``` - to access the running container
+* ```docker kill <container id>``` - kills the container by stopping its execution immediately. The difference between ‘docker kill’ and ‘docker stop’ is that ‘docker stop’ gives the container time to shutdown gracefully, in situations when it is taking too much time for getting the container to stop, one can opt to kill it.
+* ```docker rm <container id>``` -This command is used to delete a stopped container.
+* ```docker stop $(docker ps -aq)``` - stop all cotnainers!
+* ```a``` -
+* ```a``` -
+
+#### Mongo
+* https://phoenixnap.com/kb/docker-mongodb 
+* robo 3t to test connection
+* ```docker pull mongo``` - to get latest image
+* ```docker volume create mongodbdata``` - to create volume/storage for DB - DVC (Data Volume Container)
+* ```docker run --name mongo-db -p 27555:27111 -d mongo:4.4.1``` - start server instance, where
+    * ```--name``` - represents a name assigned to container
+    * ```-d mongo:tag``` - is a version of mongo
+    * ```-p 27555:27107``` - p is for port
+        * ```27555``` - port visible from PC/Host
+        * ```27111``` - container port
+    * ```docker run --name mongo-db-2 -p 8087:27017 -v mongodbdata:/data/db -d mongo:4.4.1``` - used my own
+    
+* Connect to mongoDB from another Docker container
+    * ```docker run -it --network some-network --rm mongo mongo --host some-mongo test```
+        * ```some-mongo``` - is name of the original container
+        * ```--rm``` - Automatically remove the container when it exits
+        * ```a```
+        
+        
+#### OCR-Api
+* right now ocr api build on default port 8080
+    * need to be changed! 27666 is better? or 27556 one higher than mongoDB
+* ```docker pull madgyver/docs-archive-ocr-api:latest```
+* ```docker run --name ocr-api -p 8086:8086 -d madgyver/docs-archive-ocr-api```

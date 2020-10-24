@@ -24,4 +24,10 @@ public class TessApiDoc {
     private String url;
     @JsonProperty("pages")
     private List<String> pages;
+
+
+    @Override
+    public String toString() {
+        return "TessApiDoc{" + "name='" + name + '\'' + ", origName='" + origName + '\'' + ", url='" + url + '\'' + ", pages=" + pages + '}';
+    }
 }

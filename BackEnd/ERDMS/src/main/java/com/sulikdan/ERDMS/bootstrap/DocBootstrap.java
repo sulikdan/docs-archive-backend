@@ -1,12 +1,16 @@
 package com.sulikdan.ERDMS.bootstrap;
 
 import com.sulikdan.ERDMS.entities.*;
+import com.sulikdan.ERDMS.entities.users.User;
 import com.sulikdan.ERDMS.repositories.DocRepository;
+import com.sulikdan.ERDMS.repositories.UserRepository;
 import com.sulikdan.ERDMS.services.DocService;
 import com.sulikdan.ERDMS.services.FileStorageService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -20,21 +24,16 @@ import java.util.List;
  */
 @Slf4j
 @Component
+@AllArgsConstructor
 public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> {
 
   private final DocService docService;
   private final FileStorageService fileStorageService;
 
   private final DocRepository documentRepository;
+  private final UserRepository userRepository;
 
-  public DocBootstrap(
-      DocService docService,
-      FileStorageService fileStorageService,
-      DocRepository documentRepository) {
-    this.docService = docService;
-    this.fileStorageService = fileStorageService;
-    this.documentRepository = documentRepository;
-  }
+  private final PasswordEncoder bcryptEncoder;
 
   @Override
   //    @Transactional
@@ -42,15 +41,33 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
 
     log.info("Loading documents.");
 
-    List<Doc> docs = loadDocuments();
+    User user = saveTestUser();
 
-    docs.forEach(document -> docService.saveDoc(document));
+    List<Doc> docs = loadDocuments(user);
+
+    docs.forEach(docService::saveDoc);
     //    documentRepository.saveAll(documents);
 
     log.info("Documents should be loaded and stored");
   }
 
-  public List<Doc> loadDocuments() {
+  private User saveTestUser() {
+    final String passwordEncoded = bcryptEncoder.encode("tester");
+
+    User user =
+        User.builder()
+            .id("ObjectId(\"5f931f603abd91209c846e34\")")
+            .email("yolouser@IdontKnow.com")
+            .username("tester")
+            .password(passwordEncoded)
+            .enabled(true)
+            .build();
+
+    userRepository.save(user);
+    return user;
+  }
+
+  private List<Doc> loadDocuments(User user) {
     List<DocPage> pages = new ArrayList<>();
     pages.add(
         new DocPage(
@@ -84,6 +101,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
             .docPageList(null)
             .asyncApiInfo(new AsyncApiInfo(AsyncApiState.COMPLETED, "", ""))
             .docPageList(pages)
+            .owner(user)
             .build();
 
     Doc doc2 =
@@ -93,6 +111,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
             .docConfig(new DocConfig(true, false, "svk", false))
             .docPageList(null)
             .asyncApiInfo(new AsyncApiInfo(AsyncApiState.COMPLETED, "", ""))
+            .owner(user)
             .build();
     Doc doc3 =
         Doc.builder()
@@ -101,6 +120,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
             .docConfig(new DocConfig(false, false, "eng", true))
             .docPageList(null)
             .asyncApiInfo(new AsyncApiInfo(AsyncApiState.COMPLETED, "", ""))
+            .owner(user)
             .build();
 
     Doc doc4 =
@@ -110,6 +130,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
             .docConfig(new DocConfig(false, false, "eng", false))
             .docPageList(null)
             .asyncApiInfo(new AsyncApiInfo(AsyncApiState.COMPLETED, "", ""))
+            .owner(user)
             .build();
 
     Doc doc5 =
@@ -119,6 +140,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
             .docConfig(new DocConfig(false, false, "svk", false))
             .docPageList(null)
             .asyncApiInfo(new AsyncApiInfo(AsyncApiState.COMPLETED, "", ""))
+            .owner(user)
             .build();
 
     return Arrays.asList(doc1, doc2, doc3, doc4, doc5);

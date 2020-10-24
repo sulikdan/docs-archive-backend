@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -18,10 +19,8 @@ import java.util.Arrays;
  *
  * <p>Class DocDtoConverterTest is used for .....
  */
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class DocDtoConverterTest {
-
-  @Mock ModelMapper modelMapper;
 
   DocDtoConverter docDtoConverter;
 
@@ -29,7 +28,7 @@ class DocDtoConverterTest {
   void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    docDtoConverter = new DocDtoConverter(modelMapper);
+    docDtoConverter = new DocDtoConverter();
   }
 
   @Test

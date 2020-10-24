@@ -1,9 +1,9 @@
 package com.sulikdan.ERDMS.services;
 
-import com.querydsl.core.types.Predicate;
 import com.sulikdan.ERDMS.entities.Doc;
 import com.sulikdan.ERDMS.entities.DocConfig;
 import com.sulikdan.ERDMS.entities.SearchDocParams;
+import com.sulikdan.ERDMS.entities.users.User;
 import com.sulikdan.ERDMS.repositories.DocRepository;
 import com.sulikdan.ERDMS.repositories.mongo.DocCustomRepository;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,9 +48,14 @@ class DocServiceImplTest {
 
   DocService docService;
 
+  User user;
+
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
+
+    user = new User();
+    user.setUsername("tester");
 
     docService =
         new DocServiceImpl(
@@ -63,7 +69,7 @@ class DocServiceImplTest {
 
     when(documentRepository.findById(anyString())).thenReturn(optionalDocument);
 
-    Doc docFound = docService.findDocById("abcd");
+    Doc docFound = docService.findDocById("abcd", user);
 
     Assert.assertNotNull("Null document returned!", docFound);
     Assert.assertEquals(toBeFind.getId(), docFound.getId());
@@ -78,7 +84,7 @@ class DocServiceImplTest {
     Assertions.assertThrows(
         RuntimeException.class,
         () -> {
-          docService.findDocById("abcd");
+          docService.findDocById("abcd", user);
         });
     verify(documentRepository, times(1)).findById(anyString());
     verify(documentRepository, never()).findAll();
@@ -111,16 +117,18 @@ class DocServiceImplTest {
     Doc toBeFind1 =
         Doc.builder().id("abcd").docConfig(new DocConfig(false, false, "eng", false)).build();
     List<Doc> docs = Collections.singletonList(toBeFind1);
+    Page<Doc> pagedDocs = new PageImpl<>(docs);
     //    Doc toBeFind2 = Doc.builder().id("xyz").docConfig(new DocConfig(false, false,"czk",
     // false)).build();
 
-    when(documentRepository.findDocsByMultipleArgs(docParams, 1, 5)).thenReturn(docs);
+    when(documentRepository.findDocsByMultipleArgs(docParams, user)).thenReturn(pagedDocs);
 
-    List<Doc> foundList = docService.findDocsUsingSearchParams(docParams, 1, 5);
+    Page<Doc> pagedFoundList = docService.findDocsUsingSearchParams(docParams, 0, 5, user);
+    List<Doc> foundList = pagedFoundList.getContent();
 
     Assert.assertNotNull(foundList);
     Assert.assertEquals(1, foundList.size());
-    verify(documentRepository, times(1)).findDocsByMultipleArgs(docParams, 1, 5);
+    verify(documentRepository, times(1)).findDocsByMultipleArgs(any(), user);
     verify(documentRepository, never()).findAll();
   }
 

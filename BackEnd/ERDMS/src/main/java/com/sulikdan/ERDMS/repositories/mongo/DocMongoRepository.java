@@ -10,11 +10,8 @@ import java.util.function.Predicate;
 /**
  * Created by Daniel Šulik on 12-Aug-20
  *
- * <p>Class DocMongoRepository is to contain @MongoReposiory and QuerydslPredicateExecutor
+ * <p>Class DocMongoRepository is to contain @MongoReposiory and QuerydslPredicateExecutor.
  */
 public interface DocMongoRepository
     extends MongoRepository<Doc, String>, QuerydslPredicateExecutor<Doc> {
-
-//    List<Doc> findAll(List<Predicate> predicates);
-//    List<Doc> findByRege
 }

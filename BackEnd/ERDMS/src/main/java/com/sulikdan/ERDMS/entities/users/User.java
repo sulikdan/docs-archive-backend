@@ -1,5 +1,6 @@
-package com.sulikdan.ERDMS.entities;
+package com.sulikdan.ERDMS.entities.users;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.Column;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -28,17 +30,23 @@ import java.util.Collections;
 @Document(collection = "users")
 public class User implements UserDetails {
 
+    private static final long serialVersionUID = -3399148226279293885L;
+
     @Id
     @Builder.Default
     private String id = new ObjectId().toString();;
 
-    private String firstName;
-    private String lastName;
+//    private String firstName;
+//    private String lastName;
 
     @Email
-    @Column(unique = true)
     private String email;
 
+    @Size(min = 4, max = 255)
+    private String username;
+
+    @JsonIgnore
+    @Size(min = 5, max = 1024)
     private String password;
 
     @Builder.Default
@@ -63,7 +71,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override

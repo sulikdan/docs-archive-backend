@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 
 /**
  * Created by Daniel Šulik on 10-Oct-20
- *
- * <p>Class EmailServiceImpl is used for .....
+ * @see EmailService
  */
 @AllArgsConstructor
 @Service

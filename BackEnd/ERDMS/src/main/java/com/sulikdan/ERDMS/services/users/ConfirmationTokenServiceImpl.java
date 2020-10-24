@@ -1,6 +1,6 @@
-package com.sulikdan.ERDMS.services;
+package com.sulikdan.ERDMS.services.users;
 
-import com.sulikdan.ERDMS.entities.ConfirmationToken;
+import com.sulikdan.ERDMS.entities.users.ConfirmationToken;
 import com.sulikdan.ERDMS.repositories.ConfirmationTokenRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +10,7 @@ import java.util.Optional;
 
 /**
  * Created by Daniel Šulik on 10-Oct-20
- * <p>
- * Class ConfirmationTokenServiceImpl is used for .....
+ * @see ConfirmationToken
  */
 @Slf4j
 @AllArgsConstructor

@@ -1,6 +1,6 @@
 package com.sulikdan.ERDMS.repositories;
 
-import com.sulikdan.ERDMS.entities.User;
+import com.sulikdan.ERDMS.entities.users.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
@@ -13,5 +13,7 @@ import java.util.Optional;
 public interface UserRepository extends MongoRepository<User, String> {
 
     Optional<User> findByEmail(String email);
+
+    Optional<User> findByUsername(String username);
 
 }

@@ -1,6 +1,7 @@
 package com.sulikdan.ERDMS.services.ocr;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sulikdan.ERDMS.configurations.properties.OcrProperties;
 import com.sulikdan.ERDMS.entities.*;
 import com.sulikdan.ERDMS.repositories.DocRepository;
 import com.sulikdan.ERDMS.services.statics.OcrRestApiSettings;
@@ -28,8 +29,9 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
   private final ObjectMapper mapper = new ObjectMapper();
   private final String SPLIT_PATTERN = "/ocr";
 
-
-  public OCRServiceTesseract(DocRepository documentRepository, RestApiOcr restApiOcr) {
+  public OCRServiceTesseract(
+      DocRepository documentRepository, RestApiOcr restApiOcr, OcrProperties ocrProperties) {
+    super(ocrProperties);
     this.documentRepository = documentRepository;
     this.restApiOcr = restApiOcr;
   }
@@ -37,7 +39,8 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
   @Override
   public Doc extractTextFromDoc(Doc doc) {
     try {
-      if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.WAITING_TO_SEND || doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.MANUAL_SENDING) {
+      if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.WAITING_TO_SEND
+          || doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.MANUAL_SENDING) {
         // TODO check what kind of file it is!
         // TODO Or set DocumentType Before??
         //        document.
@@ -63,7 +66,10 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
             extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
 
         TessApiDoc resultDoc = restApiOcr.getDocResult(resultUri);
-        if (resultDoc == null) return null;
+        if (resultDoc == null) {
+          log.warn("Result doc was empty!!!");
+          return null;
+        }
 
         doc.setDocPageList(
             resultDoc.getPages().stream().map(DocPage::new).collect(Collectors.toList()));
@@ -84,6 +90,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
       }
 
     } catch (IOException e) {
+      log.error("Received IO exception:" + e.getMessage());
       e.printStackTrace();
     }
 
