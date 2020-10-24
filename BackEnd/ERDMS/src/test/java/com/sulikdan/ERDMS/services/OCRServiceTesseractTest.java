@@ -1,5 +1,6 @@
 package com.sulikdan.ERDMS.services;
 
+import com.sulikdan.ERDMS.configurations.properties.OcrProperties;
 import com.sulikdan.ERDMS.entities.*;
 import com.sulikdan.ERDMS.repositories.DocRepository;
 import com.sulikdan.ERDMS.services.ocr.OCRServiceTesseract;
@@ -21,10 +22,11 @@ import java.nio.file.Files;
  */
 class OCRServiceTesseractTest {
 
-  @Mock
-  DocRepository documentRepository;
+  @Mock DocRepository documentRepository;
 
   @Mock RestApiOcr restApiOcr;
+
+  @Mock OcrProperties ocrProperties;
 
   OCRServiceTesseract ocrService;
 
@@ -32,7 +34,7 @@ class OCRServiceTesseractTest {
   void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    ocrService = new OCRServiceTesseract(documentRepository, restApiOcr);
+    ocrService = new OCRServiceTesseract(documentRepository, restApiOcr, ocrProperties);
   }
 
   @Test
@@ -44,12 +46,11 @@ class OCRServiceTesseractTest {
 
     Doc doc =
         Doc.builder()
-           .id("Yolooo")
-           .asyncApiInfo(new AsyncApiInfo())
-           .filePath(file.toPath())
-           .nameOfFile(file.getName())
-           .docType(DocType.IMG)
-           .build();
+            .id("Yolooo")
+            .asyncApiInfo(new AsyncApiInfo())
+            .nameOfFile(file.getName())
+            .docType(DocType.IMG)
+            .build();
     doc.setDocumentAsBytes(Files.readAllBytes(file.toPath()));
     //    TODO fix
     //    ocrService.postDocumentRequest(document,config);
@@ -59,11 +60,7 @@ class OCRServiceTesseractTest {
   void testGetResultDoc() {
     DocConfig config = new DocConfig(true, false, "eng", false);
     Doc toRetrieve =
-        Doc.builder()
-           .id("cvasva")
-           .asyncApiInfo(new AsyncApiInfo())
-           .docType(DocType.IMG)
-           .build();
+        Doc.builder().id("cvasva").asyncApiInfo(new AsyncApiInfo()).docType(DocType.IMG).build();
     toRetrieve.getAsyncApiInfo().setAsyncApiState(AsyncApiState.PROCESSING);
     toRetrieve
         .getAsyncApiInfo()
