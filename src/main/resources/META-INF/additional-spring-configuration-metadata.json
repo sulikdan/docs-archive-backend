@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret string to be used in generation of used token ... salting?"
+    }
+  ] }
