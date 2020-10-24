@@ -5,13 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Preconditions;
+import com.sulikdan.ERDMS.configurations.configs.JwtTokenUtil;
 import com.sulikdan.ERDMS.dto.DocDto;
 import com.sulikdan.ERDMS.dto.DocDtoConverter;
 import com.sulikdan.ERDMS.entities.Doc;
 import com.sulikdan.ERDMS.entities.DocConfig;
 import com.sulikdan.ERDMS.entities.SearchDocParams;
-import com.sulikdan.ERDMS.exceptions.UnsupportedLanguage;
+import com.sulikdan.ERDMS.entities.users.User;
+import com.sulikdan.ERDMS.exceptions.UnsupportedLanguageException;
 import com.sulikdan.ERDMS.services.DocService;
+import com.sulikdan.ERDMS.services.users.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -21,12 +24,14 @@ import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -54,12 +59,20 @@ public class DocController {
 
   private final DocService docService;
   private final DocDtoConverter docDtoConverter;
+  private final UserService userService;
+  private final JwtTokenUtil jwtTokenUtil;
   private final ModelMapper modelMappper;
   private final ObjectMapper mapper;
 
-  public DocController(DocService docService, DocDtoConverter docDtoConverter) {
+  public DocController(
+      DocService docService,
+      DocDtoConverter docDtoConverter,
+      UserService userService,
+      JwtTokenUtil jwtTokenUtil) {
     this.docService = docService;
     this.docDtoConverter = docDtoConverter;
+    this.userService = userService;
+    this.jwtTokenUtil = jwtTokenUtil;
     this.modelMappper = new ModelMapper();
     this.mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
@@ -77,6 +90,8 @@ public class DocController {
       throws JsonProcessingException, IOException {
     log.info("Getting file.");
 
+    User user = loadConnectedUser();
+
     // check language
     checkSupportedLanguages(lang);
 
@@ -85,7 +100,7 @@ public class DocController {
 
     log.info("Doc settigns: " + docConfig.toString());
 
-    List<Doc> uploadedDocList = docService.processNewDocs(files, docConfig);
+    List<Doc> uploadedDocList = docService.processNewDocs(files, docConfig, user);
 
     List<DocDto> foundDocDtos = convertDocToDocDtoWithLinks(uploadedDocList);
 
@@ -97,7 +112,9 @@ public class DocController {
   public ResponseEntity<String> getDoc(@PathVariable String documentId)
       throws JsonProcessingException {
 
-    Doc toReturn = docService.findDocById(documentId);
+    User user = loadConnectedUser();
+
+    Doc toReturn = docService.findDocById(documentId, user);
 
     if (toReturn != null) {
 
@@ -134,18 +151,19 @@ public class DocController {
     log.info("Search doc params input:" + searchDocParams.toString());
     log.info("Search doc params mapped:" + convertedParams.toString());
 
+    User user = loadConnectedUser();
     Page<Doc> pagedDocs;
     if (convertedParams != null
         && convertedParams.getPageIndex() != null
         && convertedParams.getPageSize() != null) {
       pagedDocs =
           docService.findDocsUsingSearchParams(
-              convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize());
+              convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize(), user);
     } else {
       log.warn("Called default doc search.");
-      pagedDocs = docService.findDocsUsingSearchParams(convertedParams, 0, 20);
+      pagedDocs = docService.findDocsUsingSearchParams(convertedParams, 0, 20, user);
     }
-    //    Page<Doc> pagedDocs = docService.findDocsUsingSearchParams(searchDocParams, page, size);
+
     Page<DocDto> pagedDocDtos = convertDocToDocDtoWithLinks(pagedDocs);
 
     return ResponseEntity.status(HttpStatus.OK)
@@ -156,7 +174,9 @@ public class DocController {
   public ResponseEntity<byte[]> getDocFile(@PathVariable String documentId)
       throws JsonProcessingException {
 
-    Doc foundDoc = docService.findDocById(documentId);
+    User user = loadConnectedUser();
+
+    Doc foundDoc = docService.findDocById(documentId, user);
 
     if (foundDoc != null) {
       return ResponseEntity.status(HttpStatus.OK)
@@ -169,19 +189,6 @@ public class DocController {
     }
   }
 
-  @PostMapping("/search")
-  public ResponseEntity<String> filterDocs(@RequestBody SearchDocParams searchDocParams)
-      throws JsonProcessingException {
-    if (searchDocParams == null) {
-      log.warn("Filter is empty");
-    } else {
-      log.warn("Search doc: " + searchDocParams.toString());
-    }
-
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("empty"));
-  }
-
   @PatchMapping(value = "/{id}")
   public ResponseEntity<String> update(
       @PathVariable("id") final String id, @RequestBody String updateDoc)
@@ -190,9 +197,9 @@ public class DocController {
     Preconditions.checkNotNull(updateDoc);
 
     DocDto docDtoResource = null;
-    try{
+    try {
       docDtoResource = mapper.readValue(updateDoc, DocDto.class);
-    } catch (Exception e){
+    } catch (Exception e) {
       log.info("It's distash!!");
       log.info(e.getMessage());
     }
@@ -203,7 +210,9 @@ public class DocController {
     Doc docResourece = docDtoConverter.convertToEntity(docDtoResource);
     log.info("Converted: " + docResourece.toString());
 
-    docService.updateDocument(docResourece);
+    User user = loadConnectedUser();
+
+    docService.updateDocument(docResourece, user);
     return ResponseEntity.status(HttpStatus.OK)
         .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("OK"));
   }
@@ -212,7 +221,9 @@ public class DocController {
   @ResponseStatus(HttpStatus.OK)
   public void deleteDocument(@PathVariable("id") final String id) {
     log.info("Deleting document:" + id);
-    docService.deleteDocumentById(id);
+
+    User user = loadConnectedUser();
+    docService.deleteDocumentById(id, user);
   }
 
   private Page<DocDto> convertDocToDocDtoWithLinks(Page<Doc> pagedDocList) {
@@ -246,6 +257,15 @@ public class DocController {
     docDtos.add(docDto);
   }
 
+  private User loadConnectedUser() {
+    final String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    final Optional<User> userLoaded = userService.loadUserByUserName(username);
+    if (!userLoaded.isPresent()) throw new RuntimeException("User not found!");
+    final User user = userLoaded.get();
+    log.info("Found what? :: " + (user.toString()));
+    return user;
+  }
+
   /**
    * Simple check supported languages. There are also other languages, but 1st they need to be added
    * here and then make sure that correct tesseract dataset is in folder.
@@ -259,7 +279,7 @@ public class DocController {
       case "svk":
         return;
       default:
-        throw new UnsupportedLanguage(language);
+        throw new UnsupportedLanguageException(language);
     }
   }
 }

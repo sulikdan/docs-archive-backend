@@ -26,4 +26,11 @@ public interface VirtualStorageService {
   boolean isDocUsed(String documentId);
 
   void deleteDoc(String documentId);
+
+// Error ConcurrentHashMap
+  void addOrIncreaseFailedDoc(String documentId);
+
+  int docFailedTimes(String documentId);
+
+  void deleteFailedDoc(String documentId);
 }

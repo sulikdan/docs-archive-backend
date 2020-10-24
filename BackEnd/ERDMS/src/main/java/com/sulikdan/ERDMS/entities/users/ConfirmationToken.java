@@ -1,5 +1,6 @@
-package com.sulikdan.ERDMS.entities;
+package com.sulikdan.ERDMS.entities.users;
 
+import com.sulikdan.ERDMS.entities.users.User;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;

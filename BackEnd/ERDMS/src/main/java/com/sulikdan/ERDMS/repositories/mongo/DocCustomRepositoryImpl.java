@@ -1,10 +1,8 @@
 package com.sulikdan.ERDMS.repositories.mongo;
 
 import com.querydsl.core.BooleanBuilder;
-import com.sulikdan.ERDMS.entities.AsyncApiState;
-import com.sulikdan.ERDMS.entities.Doc;
-import com.sulikdan.ERDMS.entities.QDoc;
-import com.sulikdan.ERDMS.entities.SearchDocParams;
+import com.sulikdan.ERDMS.entities.*;
+import com.sulikdan.ERDMS.entities.users.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,12 +10,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 /**
  * Created by Daniel Šulik on 11-Sep-20
  *
- * <p>Class DocumentCustomRepositoryImpl is used for .....
+ * <p>Class DocumentCustomRepositoryImpl is implementation of an interface.
+ *
+ * @see DocCustomRepository
  */
 @Slf4j
 @Repository
@@ -30,18 +28,15 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
   }
 
   @Override
-  public Page<Doc> findDocsByMultipleArgs(SearchDocParams searchDocParams) {
+  public Page<Doc> findDocsByMultipleArgs(SearchDocParams searchDocParams, User user) {
 
     QDoc qDocument = new QDoc("doc");
     BooleanBuilder builder = new BooleanBuilder();
-
-//    log.warn(String.valueOf(mongoRepository.findAll().size()));
 
     //    Ids
     BooleanBuilder builderIds = new BooleanBuilder();
     for (String id : searchDocParams.getIds()) {
       builderIds.or(qDocument.id.contains(id));
-//      builderIds.or(qDocument.id.)
     }
     builder.and(builderIds);
 
@@ -59,10 +54,24 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
     }
     builder.and(builderLanguages);
 
-    //    TODO add isShared property with users!!
-    //    if (  isShared != null){
-    //      builder.and(qDocument)
-    //    }
+    //    Tags
+    BooleanBuilder builderTags = new BooleanBuilder();
+    for (Tag tag : searchDocParams.getTags()) {
+      builderLanguages.or(qDocument.tags.contains(tag));
+    }
+    builder.and(builderTags);
+
+    //    Is shared - i.e. if user want to see all shared docs
+    if (searchDocParams.getIsShared() != null) {
+      builder.and(qDocument.isShared.eq(searchDocParams.getIsShared()));
+    }
+
+    //    Ownership or sharing-ship - all doc he owns or all docs that are shared to him
+    BooleanBuilder builderOwner = new BooleanBuilder();
+
+    builderOwner.or(qDocument.isShared.eq(true));
+    builderOwner.or(qDocument.owner.id.eq(user.getId()));
+    builder.and(builderOwner);
 
     if (searchDocParams.getCreatedFrom() != null) {
       builder.and(qDocument.createDateTime.goe(searchDocParams.getCreatedFrom()));
@@ -99,16 +108,14 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
       }
     } else {
       pageable = PageRequest.of(page, size);
-//      mongoRepository.
+      //      mongoRepository.
     }
 
-    System.out.println("Builder values:\n"+builder.getValue().toString());
+    System.out.println("Builder values:\n" + builder.getValue().toString());
     System.out.println(pageable.toString());
 
-//    if (builder.hasValue()) {
-//      System.out.println("Was here without values...");
-      return mongoRepository.findAll(builder, pageable);
-//      }
-//    else return (List<Doc>) mongoRepository.findAll(pageable);
+    //    if (builder.hasValue()) {
+    //      System.out.println("Was here without values...");
+    return mongoRepository.findAll(builder, pageable);
   }
 }

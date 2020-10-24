@@ -1,6 +1,9 @@
 package com.sulikdan.ERDMS.services;
 
 import com.sulikdan.ERDMS.entities.*;
+import com.sulikdan.ERDMS.entities.users.User;
+import com.sulikdan.ERDMS.exceptions.DocNotFoundException;
+import com.sulikdan.ERDMS.exceptions.InvalidAccessRightException;
 import com.sulikdan.ERDMS.repositories.DocRepository;
 import com.sulikdan.ERDMS.services.ocr.OCRService;
 import com.sulikdan.ERDMS.workers.OcrApiJobWorker;
@@ -28,6 +31,7 @@ import java.util.stream.StreamSupport;
  * @author Daniel Šulik
  * @version 1.0
  * @since 18-Jul-20
+ * @see DocService
  */
 @Slf4j
 @Service
@@ -62,13 +66,20 @@ public class DocServiceImpl implements DocService {
   }
 
   @Override
-  public Doc findDocById(String id) {
+  public Doc findDocById(String id, User user) {
     Optional<Doc> optionalDocument = documentRepository.findById(id);
 
     if (!optionalDocument.isPresent()) {
       log.warn(MessageFormat.format("Document with id={} not found!", id));
-      // TODO
-      throw new RuntimeException("Not found");
+      throw new DocNotFoundException("Doc mot found");
+    }
+
+    Doc foundDoc = optionalDocument.get();
+
+    //  Check access rights!
+    if (!foundDoc.getIsShared() && !foundDoc.getOwner().getId().equals(user.getId())) {
+      log.warn(MessageFormat.format("Accessing doc with id={}, but no rights!", id));
+      throw new DocNotFoundException("Doc mot found");
     }
 
     return optionalDocument.get();
@@ -82,7 +93,8 @@ public class DocServiceImpl implements DocService {
   }
 
   @Override
-  public List<Doc> processNewDocs(MultipartFile[] files, DocConfig docConfig) throws IOException {
+  public List<Doc> processNewDocs(MultipartFile[] files, DocConfig docConfig, User user)
+      throws IOException {
     List<Doc> uploadedDocs = new ArrayList<>();
 
     for (MultipartFile file : files) {
@@ -101,6 +113,7 @@ public class DocServiceImpl implements DocService {
                           : AsyncApiState.WAITING_TO_SEND,
                       null,
                       null))
+              .owner(user)
               .build();
 
       uploadedDocs.add(docToProcess);
@@ -114,8 +127,16 @@ public class DocServiceImpl implements DocService {
   }
 
   @Override
-  public void deleteDocumentById(String id) {
-    documentRepository.deleteById(id);
+  public void deleteDocumentById(String id, User user) {
+    final Optional<Doc> found = documentRepository.findById(id);
+    if (found.isPresent()) {
+      if (found.get().getOwner().getId().equals(user.getId()))
+        documentRepository.deleteById(id);
+      else
+        throw new InvalidAccessRightException("You don't have rights to delete the document!");
+    } else {
+      throw new DocNotFoundException("Document not found!");
+    }
   }
 
   @Override
@@ -138,17 +159,27 @@ public class DocServiceImpl implements DocService {
   //  https://docs.mongodb.com/manual/core/write-operations-atomicity/
   @Override
   public Doc saveDoc(Doc doc) {
-    //    TODO very dumb idea, but mongoSucks
     doc.setUpdateDateTime(LocalDateTime.now());
     return documentRepository.save(doc);
   }
 
   //  @Transactional
   @Override
-  public void updateDocument(Doc doc) {
-    //      TODO necessary? saveDocument should be enought
-    doc.setUpdateDateTime(LocalDateTime.now());
-    documentRepository.save(doc);
+  public void updateDocument(Doc doc, User user) {
+
+    Optional<Doc> foundDocOptional = documentRepository.findById(doc.getId());
+    if (!foundDocOptional.isPresent()) {
+      throw new DocNotFoundException("Requested document for update was not found!");
+    }
+    else if( !foundDocOptional.get().getOwner().getId().equals(user.getId()) ){
+      throw new InvalidAccessRightException("You don't have rights to update the document!");
+    }
+
+    Doc foundDoc = foundDocOptional.get();
+    doc.setNameOfFile(foundDoc.getNameOfFile());
+    //    TODO do other params + should check null values ?
+
+    saveDoc(doc);
   }
 
   /**
@@ -178,14 +209,14 @@ public class DocServiceImpl implements DocService {
 
   @Override
   public Page<Doc> findDocsUsingSearchParams(
-      SearchDocParams searchDocParams, Integer page, Integer size) {
+      SearchDocParams searchDocParams, Integer page, Integer size, User user) {
 
     searchDocParams.setPageIndex(page);
     searchDocParams.setPageSize(size);
 
     checkSortColumn(searchDocParams);
 
-    Page<Doc> foundDocPages = documentRepository.findDocsByMultipleArgs(searchDocParams);
+    Page<Doc> foundDocPages = documentRepository.findDocsByMultipleArgs(searchDocParams, user);
 
     return foundDocPages;
   }
@@ -214,19 +245,7 @@ public class DocServiceImpl implements DocService {
 
   private ByteArrayOutputStream createThumbnail(MultipartFile orginalFile, Integer width)
       throws IOException {
-    //    ByteArrayOutputStream thumbOutput = new ByteArrayOutputStream();
-    //    BufferedImage thumbImg = null;
-    //    BufferedImage img = ImageIO.read(orginalFile.getInputStream());
-    //    thumbImg =
-    //        Scalr.resize(img, Scalr.Method.AUTOMATIC, Scalr.Mode.AUTOMATIC, width,
-    // Scalr.OP_ANTIALIAS);
-    //    ImageIO.write(thumbImg, orginalFile.getContentType().split("/")[1], thumbOutput);
-    //    log.info("--"+ thumbOutput.toByteArray().toString() +"--");
-    //    return thumbOutput;
-    //    BufferedImage img = ImageIO.read(orginalFile.getInputStream());
-    //    ByteArrayOutputStream imgStrema;
-    ////    orginalFile.
-    //    return  Thumbnails.of(img).scale(0.25).asBufferedImage();
+
     String extension = FilenameUtils.getExtension(orginalFile.getOriginalFilename());
 
     log.warn("Content type" + orginalFile);

@@ -47,21 +47,22 @@ public class SearchDocParams {
   private Boolean sortAscending;
 
   public SearchDocParams() {
-    pageIndex = 0;
-    pageSize = 20;
-    ids = new ArrayList<>();
-    searchedText = new ArrayList<>();
-    states = new ArrayList<>();
-    languages = new ArrayList<>();
-    textRegex = null;
-    createdFrom = null;
-    createdTo = null;
-    updatedFrom = null;
-    updatedTo = null;
-    isShared = null;
+    this.pageIndex = 0;
+    this.pageSize = 20;
+    this.ids = new ArrayList<>();
+    this.searchedText = new ArrayList<>();
+    this.states = new ArrayList<>();
+    this.languages = new ArrayList<>();
+    this.tags = new ArrayList<>();
+    this.textRegex = null;
+    this.createdFrom = null;
+    this.createdTo = null;
+    this.updatedFrom = null;
+    this.updatedTo = null;
+    this.isShared = null;
 
-    columnSortList = new ArrayList<>();
-    sortAscending = true;
+    this.columnSortList = new ArrayList<>();
+    this.sortAscending = true;
   }
 
   public SearchDocParams(

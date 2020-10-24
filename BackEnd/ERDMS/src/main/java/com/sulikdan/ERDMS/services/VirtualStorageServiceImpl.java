@@ -20,6 +20,8 @@ public class VirtualStorageServiceImpl implements VirtualStorageService {
   private final ConcurrentHashMap<String, Boolean> documentsMapCurrentlyInUse =
       new ConcurrentHashMap<>();
 
+  private final ConcurrentHashMap<String, Integer> documentsMapFailed = new ConcurrentHashMap<>();
+
   @Override
   public Doc getNextDoc() {
     return docBlockingQueue.peek();
@@ -53,5 +55,24 @@ public class VirtualStorageServiceImpl implements VirtualStorageService {
   @Override
   public void deleteDoc(String documentId) {
     documentsMapCurrentlyInUse.remove(documentId);
+  }
+
+  @Override
+  public void addOrIncreaseFailedDoc(String documentId) {
+    if (documentsMapFailed.containsKey(documentId)) {
+      documentsMapFailed.put(documentId, documentsMapFailed.get(documentId) + 1);
+    } else {
+      documentsMapFailed.put(documentId, 1);
+    }
+  }
+
+  @Override
+  public int docFailedTimes(String documentId) {
+    return documentsMapFailed.getOrDefault(documentId, 0);
+  }
+
+  @Override
+  public void deleteFailedDoc(String documentId) {
+    documentsMapFailed.remove(documentId);
   }
 }

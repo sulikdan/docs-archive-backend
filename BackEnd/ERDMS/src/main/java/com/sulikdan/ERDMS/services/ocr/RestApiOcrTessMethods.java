@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sulikdan.ERDMS.configurations.properties.OcrProperties;
 import com.sulikdan.ERDMS.entities.*;
 import com.sulikdan.ERDMS.services.statics.OcrRestApiSettings;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,10 @@ import java.util.List;
 public class RestApiOcrTessMethods extends OcrRestApiSettings implements RestApiOcr {
 
   ObjectMapper mapper = new ObjectMapper();
+
+  public RestApiOcrTessMethods(OcrProperties ocrProperties) {
+    super(ocrProperties);
+  }
 
   @Override
   public AsyncApiInfo postDocRequest(Doc doc)

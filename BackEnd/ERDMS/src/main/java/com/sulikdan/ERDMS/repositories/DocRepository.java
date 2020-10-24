@@ -25,5 +25,7 @@ public interface DocRepository extends MongoRepository<Doc, String>, DocCustomRe
 
     List<Doc> findDocumentsBy  (List<String> id);
 
+//    List<Doc> getAllByCon
+
 
 }

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.querydsl.core.annotations.QueryEntity;
+import com.sulikdan.ERDMS.entities.users.User;
 import lombok.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bson.types.ObjectId;
@@ -77,7 +78,7 @@ public class Doc {
   @Builder.Default
   private Boolean isShared = false;
 
-  @DBRef(lazy = true)
+  @DBRef
   private User owner;
 
   public Doc() {}
@@ -142,7 +143,7 @@ public class Doc {
     this.updateDateTime = updateDateTime; //updateDateTime != null ? updateDateTime : LocalDateTime.now();
     this.tags = tags;
     this.isShared = isShared;
-    this.owner = null;
+    this.owner = user;
   }
 
 

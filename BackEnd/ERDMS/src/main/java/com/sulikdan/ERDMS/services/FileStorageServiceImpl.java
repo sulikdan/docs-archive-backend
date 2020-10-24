@@ -20,8 +20,7 @@ import java.util.Objects;
 
 /**
  * Created by Daniel Šulik on 02-Jul-20
- *
- * <p>Class FileStorageServiceImpl is used for .....
+ * @see FileStorageService
  */
 @Slf4j
 @Service
