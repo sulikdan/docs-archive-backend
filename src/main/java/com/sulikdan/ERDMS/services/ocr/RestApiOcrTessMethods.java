@@ -35,16 +35,16 @@ public class RestApiOcrTessMethods extends OcrRestApiSettings implements RestApi
   }
 
   @Override
-  public AsyncApiInfo postDocRequest(Doc doc)
-      throws JsonProcessingException {
+  public AsyncApiInfo postDocRequest(Doc doc) throws JsonProcessingException {
+
+    log.warn("Current base uri: " + BASE_URI);
 
     WebClient ocrClient = generateWebClient(BASE_URI);
     ResponseEntity<JsonNode> jsonNode;
     MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
     bodyBuilder
         .part("files", new ByteArrayResource(doc.getDocumentAsBytes()))
-        .header(
-            "Content-Disposition", "form-data; name=files; filename=" + doc.getNameOfFile());
+        .header("Content-Disposition", "form-data; name=files; filename=" + doc.getNameOfFile());
     addRequestTextParam(bodyBuilder, doc.getDocConfig());
 
     if (doc.getDocType() == DocType.IMG) {
@@ -55,8 +55,7 @@ public class RestApiOcrTessMethods extends OcrRestApiSettings implements RestApi
     // Parse Response where to check and save it to document
     //    AsyncDocInfo asyncDocInfoResult = null;
     //    if (!jsonNode.hasBody())
-    if(jsonNode.getStatusCode().isError())
-      return null;
+    if (jsonNode.getStatusCode().isError()) return null;
 
     // parser + maybe it would be better to change approach expecting only 1 item?
     AsyncApiInfo asyncApiInfoResult =
@@ -73,8 +72,7 @@ public class RestApiOcrTessMethods extends OcrRestApiSettings implements RestApi
 
     ResponseEntity<JsonNode> jsonNode = executeGetRequest(generateWebClient(BASE_URI), statusUri);
 
-    if(jsonNode.getStatusCode().isError())
-      return null;
+    if (jsonNode.getStatusCode().isError()) return null;
 
     AsyncApiInfo requestResult =
         mapper.readValue(jsonNode.getBody().toString(), AsyncApiInfo.class);
@@ -87,8 +85,7 @@ public class RestApiOcrTessMethods extends OcrRestApiSettings implements RestApi
   public TessApiDoc getDocResult(String resultUri) throws JsonProcessingException {
     ResponseEntity<JsonNode> jsonNode = executeGetRequest(generateWebClient(BASE_URI), resultUri);
 
-    if(jsonNode.getStatusCode().isError())
-      return null;
+    if (jsonNode.getStatusCode().isError()) return null;
 
     TessApiDoc requestResult = mapper.readValue(jsonNode.getBody().toString(), TessApiDoc.class);
 

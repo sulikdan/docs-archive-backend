@@ -28,7 +28,7 @@ public class OcrRestApiSettings {
     STRGE_DOC_CONTRL = "/storage";
 
     BASE_URI =
-        "https://" + this.ocrProperties.getAddress() + ":" + this.ocrProperties.getPort() + "/ocr";
+        "http://" + this.ocrProperties.getAddress() + ":" + this.ocrProperties.getPort() + "/ocr";
   }
 
   protected String getImgUri() {

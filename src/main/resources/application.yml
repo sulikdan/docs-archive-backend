@@ -1,14 +1,14 @@
 server:
   port: 8085
-  address: localhost
+  address: 127.0.0.1
 
 fe:
   port: 4200
-  address: localhost
+  address: 127.0.0.1
 
 ocr:
-  port: 8086
-  address: localhost
+  port: 8080
+  address: 127.0.0.1
 
 spring:
   mail:
@@ -35,7 +35,7 @@ spring:
       #      username: root
       #      password: example
       #      uri: mongodb://localhost:28555/db
-      host: localhost
+      host: 127.0.0.1
       port: 8087
 
 #  datasource:
