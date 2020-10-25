@@ -15,9 +15,13 @@ import com.sulikdan.ERDMS.services.users.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.Link;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -40,6 +44,8 @@ class DocControllerTest {
   @Mock DocService docService;
   @Mock UserService userService;
   @Mock JwtTokenUtil jwtTokenUtil;
+  SecurityContext securityContext;
+  Authentication authentication;
 
   DocDtoConverter docDtoConverter;
 
@@ -58,6 +64,9 @@ class DocControllerTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.initMocks(this);
+
+    authentication = Mockito.mock(Authentication.class);
+    securityContext = Mockito.mock(SecurityContext.class);
 
     docDtoConverter = new DocDtoConverter();
 
@@ -96,8 +105,13 @@ class DocControllerTest {
     String responseBody = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(docDto);
 
     // When
+    //  loadConnectedUser()
+    when(securityContext.getAuthentication()).thenReturn(authentication);
+    SecurityContextHolder.setContext(securityContext);
+    when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn(user.getUsername());
+    when(userService.loadUserByUserName(user.getUsername())).thenReturn(java.util.Optional.ofNullable(user));
+
     when(docService.findDocById(docDto.getId(), user)).thenReturn(doc);
-    //    when(docDtoConverter.convertToDto(doc)).thenReturn(docDto);
 
     //    then
     this.mockMvc
@@ -114,9 +128,16 @@ class DocControllerTest {
   public void getDocNotFound() throws Exception {
 
     // When
+
+    //  loadConnectedUser()
+    when(securityContext.getAuthentication()).thenReturn(authentication);
+    SecurityContextHolder.setContext(securityContext);
+    when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn(user.getUsername());
+    when(userService.loadUserByUserName(user.getUsername())).thenReturn(java.util.Optional.ofNullable(user));
+
     when(docService.findDocById("99xaa", user)).thenReturn(null);
 
-    //    then
+    // then
     this.mockMvc.perform(get("/api/documents/" + "99xaa")).andExpect(status().isNotFound());
 
     verify(docService, times(1)).findDocById("99xaa", user);

@@ -10,9 +10,34 @@ ocr:
   port: 8080
   address: 127.0.0.1
 
+jwt:
+  secret: RandomBananaPassword
+
+logging:
+  level:
+    org.springframework.web: debug
+    org.hibernate: ERROR
+
+#spring:
+#  mail:
+#    host: smtp.gmail.com
+#    port: 587
+#    username: "gmailHere@gmail.com"
+#    password: "passwordHere"
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+#          connectiontimeout: 6000
+#          timeout: 2500
+#          writetimeout: 6000
+
+---
+
 spring:
-  profiles:
-    Runtime
+  profiles: default
   mail:
     host: smtp.gmail.com
     port: 587
@@ -27,11 +52,8 @@ spring:
           connectiontimeout: 6000
           timeout: 2500
           writetimeout: 6000
-  jta:
-    atomikos:
-      properties:
-        recovery:
-          forget-orphaned-log-entries-delay:
+#spring:
+#  profiles: normal
   data:
     mongodb:
       #      username: root
@@ -40,39 +62,10 @@ spring:
       host: 127.0.0.1
       port: 8087
 
-#  datasource:
-#    url: localhost
-#    username: root
-#    password: root
-#    platform: mongodb
-#  jpa:
-#    hibernate:
-#      ddl-auto: create-drop
-jwt:
-  secret: RandomBananaPassword
-
-logging:
-  level:
-    org.springframework.web: debug
-    org.hibernate: ERROR
-
 ---
 
-server:
-  port: 8085
-  address: 127.0.0.1
-
-fe:
-  port: 4200
-  address: 127.0.0.1
-
-ocr:
-  port: 8080
-  address: 127.0.0.1
-
 spring:
-  profiles:
-    Test
+  profiles: test
   mail:
     host: smtp.gmail.com
     port: 587
@@ -87,31 +80,10 @@ spring:
           connectiontimeout: 6000
           timeout: 2500
           writetimeout: 6000
-  jta:
-    atomikos:
-      properties:
-        recovery:
-          forget-orphaned-log-entries-delay:
 #  data:
 #    mongodb:
-      #      username: root
-      #      password: example
-      #      uri: mongodb://localhost:28555/db
+#      #      username: root
+#      #      password: example
+#      #      uri: mongodb://localhost:28555/db
 #      host: 127.0.0.1
-#      port: 8087
-
-#  datasource:
-#    url: localhost
-#    username: root
-#    password: root
-#    platform: mongodb
-#  jpa:
-#    hibernate:
-#      ddl-auto: create-drop
-jwt:
-  secret: RandomBananaPassword
-
-logging:
-  level:
-    org.springframework.web: debug
-    org.hibernate: ERROR
+#      port: 27017

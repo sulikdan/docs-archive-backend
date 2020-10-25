@@ -10,8 +10,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@ActiveProfiles("Test")
 @SpringBootTest
+@ActiveProfiles("test")
 class ErdmsApplicationTests {
 
 	@Test
@@ -20,3 +20,4 @@ class ErdmsApplicationTests {
 
 	}
 }
+

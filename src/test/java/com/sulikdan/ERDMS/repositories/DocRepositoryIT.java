@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
@@ -25,6 +26,7 @@ import java.util.*;
  * @since 23-Jul-20
  */
 // @ContextConfiguration(classes={MongoConfig.class})
+@ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
 @DataMongoTest
 @EnableMongoRepositories(considerNestedRepositories = true)
