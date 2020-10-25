@@ -20,7 +20,7 @@ ENV APP_FILE ERDMS-0.0.1-SNAPSHOT.jar
 EXPOSE 8085
 
 # Copy JAR
-COPY --from=build /usr/src/app/target/ERDMS-0.0.1-SNAPSHOT.jarr /usr/app/ERDMS-0.0.1-SNAPSHOT.jar
+COPY --from=build /usr/src/app/target/ERDMS-0.0.1-SNAPSHOT.jar /usr/app/ERDMS-0.0.1-SNAPSHOT.jar
 
 # Launch the Spring Boot application
 
