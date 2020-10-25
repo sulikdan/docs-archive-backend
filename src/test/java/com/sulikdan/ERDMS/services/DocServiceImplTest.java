@@ -54,8 +54,7 @@ class DocServiceImplTest {
   void setUp() {
     MockitoAnnotations.initMocks(this);
 
-    user = new User();
-    user.setUsername("tester");
+    user = User.builder().id("1234").username("tester").build();
 
     docService =
         new DocServiceImpl(
@@ -64,7 +63,7 @@ class DocServiceImplTest {
 
   @Test
   void findDocumentById() {
-    Doc toBeFind = Doc.builder().id("abcd").build();
+    Doc toBeFind = Doc.builder().id("abcd").owner(user).build();
     Optional<Doc> optionalDocument = Optional.of(toBeFind);
 
     when(documentRepository.findById(anyString())).thenReturn(optionalDocument);
@@ -115,7 +114,7 @@ class DocServiceImplTest {
     docParams.getLanguages().add("eng");
 
     Doc toBeFind1 =
-        Doc.builder().id("abcd").docConfig(new DocConfig(false, false, "eng", false)).build();
+        Doc.builder().id("abcd").docConfig(new DocConfig(false, false, "eng", false)).owner(user).build();
     List<Doc> docs = Collections.singletonList(toBeFind1);
     Page<Doc> pagedDocs = new PageImpl<>(docs);
     //    Doc toBeFind2 = Doc.builder().id("xyz").docConfig(new DocConfig(false, false,"czk",
@@ -128,7 +127,7 @@ class DocServiceImplTest {
 
     Assert.assertNotNull(foundList);
     Assert.assertEquals(1, foundList.size());
-    verify(documentRepository, times(1)).findDocsByMultipleArgs(any(), user);
+    verify(documentRepository, times(1)).findDocsByMultipleArgs(docParams, user);
     verify(documentRepository, never()).findAll();
   }
 

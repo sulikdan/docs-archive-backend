@@ -70,8 +70,7 @@ class DocControllerTest {
 
     modelMappper = new ModelMapper();
 
-    user = new User();
-    user.setUsername("tester");
+    user = User.builder().id("1234").username("tester").build();
 
     mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
@@ -83,6 +82,7 @@ class DocControllerTest {
     doc.setId("999xyz999");
     doc.setAsyncApiInfo(new AsyncApiInfo());
     doc.setIsShared(false);
+    doc.setOwner(user);
     return doc;
   }
 

@@ -40,12 +40,13 @@
         <!--        			<version>2.2.4.RELEASE</version>-->
         <!--        		</dependency>-->
 
-        <!--	For embedded mongo DB, later substitute with real one   -->
-        <!--        <dependency>-->
-        <!--            <groupId>de.flapdoodle.embed</groupId>-->
-        <!--            <artifactId>de.flapdoodle.embed.mongo</artifactId>-->
-        <!--            <version>${embedded-mongo.version}</version>-->
-        <!--        </dependency>-->
+        <!--	For embedded mongo DB for tests only   -->
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>${embedded-mongo.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -162,6 +163,7 @@
             <artifactId>commons-validator</artifactId>
             <version>1.7</version>
         </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -184,6 +186,14 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
+            <version>${spring.versions}</version>
+        </dependency>
+
+        <!-- Metadata configuartion -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
         </dependency>
 
 

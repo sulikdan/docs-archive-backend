@@ -3,6 +3,26 @@
     {
       "name": "jwt.secret",
       "type": "java.lang.String",
-      "description": "Secret string to be used in generation of used token ... salting?"
+      "description": "Secret string to be used in generation of used token ... salting."
+    },
+    {
+      "name": "fe.port",
+      "type": "java.lang.String",
+      "description": "Port for the frontend app."
+    },
+    {
+      "name": "fe.address",
+      "type": "java.lang.String",
+      "description": "Address for the frontend app."
+    },
+    {
+      "name": "ocr.port",
+      "type": "java.lang.String",
+      "description": "Port for the ocr app."
+    },
+    {
+      "name": "ocr.address",
+      "type": "java.lang.String",
+      "description": "Address for the ocr app."
     }
   ] }
