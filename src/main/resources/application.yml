@@ -60,7 +60,7 @@ spring:
       #      password: example
       #      uri: mongodb://localhost:28555/db
       host: 127.0.0.1
-      port: 8087
+      port: 27017
 
 ---
 
