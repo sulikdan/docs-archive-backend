@@ -57,7 +57,7 @@ public class UserController {
     this.mapper = new ObjectMapper();
   }
 
-  @RequestMapping({"/hello"})
+  @GetMapping(value ="/hello")
   public String firstPage() {
     return "Hello World";
   }
