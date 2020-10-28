@@ -27,7 +27,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
   private final DocRepository documentRepository;
   private final RestApiOcr restApiOcr;
   private final ObjectMapper mapper = new ObjectMapper();
-  private final String SPLIT_PATTERN = "/ocr";
+  private final String SPLIT_PATTERN = "/api/ocr";
 
   public OCRServiceTesseract(
       DocRepository documentRepository, RestApiOcr restApiOcr, OcrProperties ocrProperties) {

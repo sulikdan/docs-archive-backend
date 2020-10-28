@@ -47,12 +47,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
  */
 @Slf4j
 @RestController
-@CrossOrigin(
-    origins = {
-      "http://localhost:4200/import",
-      "http://localhost:4200",
-      "http://localhost:4200/documents"
-    })
+@CrossOrigin
 @RequestMapping("api/documents")
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 public class DocController {
