@@ -105,6 +105,8 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
    * @return
    */
   private String extractUriFromWholeURL(String url, String patternToSplit) {
-    return url.split(patternToSplit)[1];
+    final String uriFromUrl = url.split(patternToSplit)[1];
+    log.debug("-->>||-->> Url before: " + url + " || after: " + uriFromUrl);
+    return uriFromUrl;
   }
 }

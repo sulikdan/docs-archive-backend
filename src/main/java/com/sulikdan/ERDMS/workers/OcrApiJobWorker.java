@@ -59,7 +59,7 @@ public class OcrApiJobWorker implements Runnable {
             MessageFormat.format(
                 "There was issue with OCR scanning document {0}.\n With error message: {1}.",
                 returned.getId(), e.getMessage()));
-
+        e.getStackTrace();
         // remove from map containing docs in use
         virtualStorageService.deleteDoc(returned.getId());
 
