@@ -65,7 +65,7 @@ class OCRServiceTesseractTest {
     toRetrieve
         .getAsyncApiInfo()
         .setOcrApiDocStatus(
-            "http://localhost:8080/ocr/document/OCR_1597007679261_OCR_TEXT_1.jpg/documentStatus");
+            "http://localhost:8080/api/ocr/document/OCR_1597007679261_OCR_TEXT_1.jpg/documentStatus");
 
     ocrService.extractTextFromDoc(toRetrieve);
   }
