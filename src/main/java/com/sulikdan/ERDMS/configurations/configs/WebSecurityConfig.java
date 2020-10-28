@@ -63,7 +63,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .disable()
         // dont authenticate this particular request
         .authorizeRequests()
-        .antMatchers("/authenticate", "/register", "/api/users/**")
+        .antMatchers("**/authenticate", "**/register", "**/api/users/**")
         .permitAll().antMatchers(HttpMethod.OPTIONS, "/**")
         .permitAll()
         .
