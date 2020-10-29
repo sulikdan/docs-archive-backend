@@ -352,6 +352,13 @@ Maybe later? Something simple:
 * ```docker stop $(docker ps -aq)``` - stop all cotnainers!
 * ```a``` -
 * ```a``` -
+* ```docker run = docker create + docker start```
+
+#### Docker networks
+* ```docker network create database```
+* ```docker network create ocr```
+* ```docker network create backend```
+
 
 #### Mongo
 * https://phoenixnap.com/kb/docker-mongodb 
@@ -378,3 +385,47 @@ Maybe later? Something simple:
     * need to be changed! 27666 is better? or 27556 one higher than mongoDB
 * ```docker pull madgyver/docs-archive-ocr-api:latest```
 * ```docker run --name ocr-api -p 8086:8086 -d madgyver/docs-archive-ocr-api```
+* currently on 8086->8086
+
+#### Backend
+* 8085 -> 8085
+* ```docker run --name backend-api -p 8085:8085 -d madgyver/docs-archive-backend-api```
+
+#### FrontEnd
+* https://medium.com/better-programming/7-steps-to-dockerize-your-angular-9-app-with-nginx-915f0f5acac
+* 4200 -> 4200
+* ```docker run --name front-end -p 4200:4200 -d madgyver/docs-archive-frontend --build-arg --tesseract.path=/usr/share/tessdata/```
+
+#### Final docker commands
+##### Creating docker-network settigns
+1. ```docker network create db-mongo-net```
+1. ```docker network create ocr-net```
+1. ```docker network create backend-net```
+##### Mongo-DB
+1.  ```docker volume create mongodbdata``` # creating special volume, so it remembers data even when we restart
+ container.
+1. ```docker run --name mongo-db -p 27017:27017 --network db-mongo-net -v mongodbdata:/data/db -d mongo:4.4.1```
+##### Ocr-Api
+1. ```docker run --name ocr-api -p 8086:8086 --network ocr-net -d madgyver/docs-archive-ocr-api --tesseract.path=/usr/share/tessdata/```
+##### Backend
+1. Following:
+```
+docker create \ 
+--name backend-api \ 
+-p 8085:8085 \
+--network db-mongo-net \ 
+madgyver/docs-archive-backend-api \
+--spring.data.mongodb.host=mongo-db \
+--ocr.address=ocr-api
+```
+e.g.: ```
+      docker create       --name backend-api      -p 8085:8085       --network db-mongo-net      madgyver/docs-archive-backend-api       --spring.data.mongodb.host=mongo-db       --ocr.address=ocr-api
+      ```
+1. ```docker network connect ocr-net backend-api```
+1. ```docker network connect backend-net backend-api```
+1. ```docker start backend-api```
+##### FrontEnd
+1. ```docker run --name front-end -p 4200:4200 --network backend-net -d madgyver/docs-archive-frontend```
+
+### DOCKER VITAL STUFF
+```docker run blablalblabl -p hostP```

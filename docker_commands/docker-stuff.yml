@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  mongo-db:
+    image: mongo:4.4.1
+#    build: .
+    ports:
+      - "27127:27127"
+    volumes:
+      - mongodbdata:/data/db
+#    links:
+  ocr-api:
+    image: madgyver/docs-archive-ocr-api:latest
+#    build: .
+    ports:
+      - "8086:8086"
+#    volumes:
+
+#    links:
+  backend-api:
+    image: madgyver/docs-archive-backend-api:latest
+##    build: .
+    ports:
+      - "8085:8085"
+#    volumes:
+
+#    links:
+  frontend:
+    image: madgyver/docs-archive-frontend:latest
+#    build: .
+    ports:
+      - "4200:80"
+#    volumes:
+
+#    links:
+
+#  web:
+#    build: .
+#    ports:
+#      - "5000:5000"
+#    volumes:
+#      - .:/code
+#      - logvolume01:/var/log
+#    links:
+#      - redis
+#  redis:
+#    image: redis
+volumes:
+  mongodbdata:
+networks:
+
