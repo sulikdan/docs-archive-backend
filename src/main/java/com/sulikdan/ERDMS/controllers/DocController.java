@@ -48,7 +48,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @Slf4j
 @RestController
 @CrossOrigin
-@RequestMapping("api/documents")
+@RequestMapping("/documents")
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 public class DocController {
 

@@ -3,39 +3,38 @@ version: "3.8"
 services:
   mongo-db:
     image: mongo:4.4.1
-#    build: .
+    network_mode: "host"
     ports:
       - "27127:27127"
     volumes:
       - mongodbdata:/data/db
-#    links:
   ocr-api:
     image: madgyver/docs-archive-ocr-api:latest
-#    build: .
+    command: --tesseract.path=/usr/share/tessdata/
+    network_mode: "host"
     ports:
       - "8086:8086"
-#    volumes:
 
-#    links:
   backend-api:
     image: madgyver/docs-archive-backend-api:latest
-##    build: .
+    command:
+#      --spring.data.mongodb.host=mongo-db
+#      --ocr.address=ocr-api
+      --spring.data.mongodb.host=localhost
+      --ocr.address=localhost
+    network_mode: "host"
     ports:
       - "8085:8085"
-#    volumes:
 
-#    links:
   frontend:
     image: madgyver/docs-archive-frontend:latest
-#    build: .
+    network_mode: "host"
     ports:
       - "4200:80"
-#    volumes:
 
 #    links:
 
 #  web:
-#    build: .
 #    ports:
 #      - "5000:5000"
 #    volumes:
@@ -47,5 +46,5 @@ services:
 #    image: redis
 volumes:
   mongodbdata:
-networks:
+#networks:
 

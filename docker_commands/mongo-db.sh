@@ -12,4 +12,5 @@
 #docker run --name mongo-db -p 27017:27017 --network mongo-db -v mongodbdata:/data/db -d mongo:4.4.1
 
 # Current
-docker run --name mongo-db -p 27017:27017 --network backend-comm -v mongodbdata:/data/db -d mongo:4.4.1
+#docker run --name mongo-db -p 27017:2701t7 --network backend-comm -v mongodbdata:/data/db -d mongo:4.4.1
+docker run --name mongo-db -p 27017:27017 -v mongodbdata:/data/db -d mongo:4.4.1

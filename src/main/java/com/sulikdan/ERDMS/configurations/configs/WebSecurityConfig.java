@@ -7,8 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders
-        .AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -43,11 +42,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder);
   }
 
-//  @Bean
-//  public BCryptPasswordEncoder bCryptPasswordEncoder() {
-//
-//    return new BCryptPasswordEncoder();
-//  }
+  //  @Bean
+  //  public BCryptPasswordEncoder bCryptPasswordEncoder() {
+  //
+  //    return new BCryptPasswordEncoder();
+  //  }
 
   @Bean
   @Override
@@ -61,15 +60,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     httpSecurity
         .csrf()
         .disable()
-        // dont authenticate this particular request
-        .authorizeRequests()
-        .antMatchers("**/authenticate", "**/register", "**/api/users/**")
-        .permitAll().antMatchers(HttpMethod.OPTIONS, "/**")
-        .permitAll()
-        .
+          // dont authenticate this particular request
+          .authorizeRequests()
+            .antMatchers("/users/**")
+              .permitAll()
+            .antMatchers(HttpMethod.OPTIONS, "/**")
+              .permitAll()
+
         // all other requests need to be authenticated
-        anyRequest()
-        .authenticated()
+          .anyRequest()
+            .authenticated()
         .and()
         .
         // make sure we use stateless session; session won't be used to

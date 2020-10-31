@@ -32,7 +32,7 @@ import java.util.Optional;
 @CrossOrigin
 @Slf4j
 @RestController
-@RequestMapping(value = "api/users")
+@RequestMapping(value = "/users")
 public class UserController {
 
   private final UserService userService;
