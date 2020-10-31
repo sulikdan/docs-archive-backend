@@ -35,6 +35,7 @@ import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
+
 /**
  * Created by Daniel Šulik on 18-Jul-20
  *
@@ -46,8 +47,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
  * @since 18-Jul-20
  */
 @Slf4j
-@RestController
 @CrossOrigin
+@RestController
 @RequestMapping("/documents")
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 public class DocController {
@@ -60,10 +61,10 @@ public class DocController {
   private final ObjectMapper mapper;
 
   public DocController(
-      DocService docService,
-      DocDtoConverter docDtoConverter,
-      UserService userService,
-      JwtTokenUtil jwtTokenUtil) {
+          DocService docService,
+          DocDtoConverter docDtoConverter,
+          UserService userService,
+          JwtTokenUtil jwtTokenUtil) {
     this.docService = docService;
     this.docDtoConverter = docDtoConverter;
     this.userService = userService;
@@ -77,12 +78,12 @@ public class DocController {
   @ResponseBody
   @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> uploadAndExtractTextSync(
-      @RequestPart("files") MultipartFile[] files,
-      @RequestParam(value = "lang", defaultValue = "eng") String lang,
-      @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
-      @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality,
-      @RequestParam(value = "scanImmediately", defaultValue = "false") Boolean scanImmediately)
-      throws JsonProcessingException, IOException {
+          @RequestPart("files") MultipartFile[] files,
+          @RequestParam(value = "lang", defaultValue = "eng") String lang,
+          @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
+          @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality,
+          @RequestParam(value = "scanImmediately", defaultValue = "false") Boolean scanImmediately)
+          throws JsonProcessingException, IOException {
     log.info("Getting file.");
 
     User user = loadConnectedUser();
@@ -100,12 +101,12 @@ public class DocController {
     List<DocDto> foundDocDtos = convertDocToDocDtoWithLinks(uploadedDocList);
 
     return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundDocDtos));
+            .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundDocDtos));
   }
 
   @GetMapping(value = "/{documentId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> getDoc(@PathVariable String documentId)
-      throws JsonProcessingException {
+          throws JsonProcessingException {
 
     User user = loadConnectedUser();
 
@@ -118,11 +119,11 @@ public class DocController {
       toReturnDocDto.add(selfLink);
 
       return ResponseEntity.status(HttpStatus.OK)
-          .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toReturnDocDto));
+              .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toReturnDocDto));
 
     } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(""));
+              .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(""));
     }
   }
 
@@ -149,11 +150,11 @@ public class DocController {
     User user = loadConnectedUser();
     Page<Doc> pagedDocs;
     if (convertedParams != null
-        && convertedParams.getPageIndex() != null
-        && convertedParams.getPageSize() != null) {
+            && convertedParams.getPageIndex() != null
+            && convertedParams.getPageSize() != null) {
       pagedDocs =
-          docService.findDocsUsingSearchParams(
-              convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize(), user);
+              docService.findDocsUsingSearchParams(
+                      convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize(), user);
     } else {
       log.warn("Called default doc search.");
       pagedDocs = docService.findDocsUsingSearchParams(convertedParams, 0, 20, user);
@@ -162,12 +163,12 @@ public class DocController {
     Page<DocDto> pagedDocDtos = convertDocToDocDtoWithLinks(pagedDocs);
 
     return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(pagedDocDtos));
+            .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(pagedDocDtos));
   }
 
   @GetMapping(value = "/{documentId}/file", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public ResponseEntity<byte[]> getDocFile(@PathVariable String documentId)
-      throws JsonProcessingException {
+          throws JsonProcessingException {
 
     User user = loadConnectedUser();
 
@@ -175,9 +176,9 @@ public class DocController {
 
     if (foundDoc != null) {
       return ResponseEntity.status(HttpStatus.OK)
-          .header(
-              "Content-Disposition", "attachment; filename=\"" + foundDoc.getNameOfFile() + "\"")
-          .body(foundDoc.getDocumentAsBytes());
+              .header(
+                      "Content-Disposition", "attachment; filename=\"" + foundDoc.getNameOfFile() + "\"")
+              .body(foundDoc.getDocumentAsBytes());
       //      return foundDoc.getDocumentAsBytes();
     } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -186,8 +187,8 @@ public class DocController {
 
   @PatchMapping(value = "/{id}")
   public ResponseEntity<String> update(
-      @PathVariable("id") final String id, @RequestBody String updateDoc)
-      throws JsonProcessingException {
+          @PathVariable("id") final String id, @RequestBody String updateDoc)
+          throws JsonProcessingException {
     log.info("Patching.." + updateDoc);
     Preconditions.checkNotNull(updateDoc);
 
@@ -209,7 +210,7 @@ public class DocController {
 
     docService.updateDocument(docResourece, user);
     return ResponseEntity.status(HttpStatus.OK)
-        .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("OK"));
+            .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("OK"));
   }
 
   @DeleteMapping(value = "/{id}")

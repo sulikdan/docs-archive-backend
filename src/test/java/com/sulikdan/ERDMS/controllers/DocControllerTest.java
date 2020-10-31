@@ -115,7 +115,7 @@ class DocControllerTest {
 
     //    then
     this.mockMvc
-        .perform(get("/api/documents/" + doc.getId()))
+        .perform(get("/documents/" + doc.getId()))
         .andExpect(status().isOk())
         .andExpect(content().string(responseBody));
 
@@ -138,7 +138,7 @@ class DocControllerTest {
     when(docService.findDocById("99xaa", user)).thenReturn(null);
 
     // then
-    this.mockMvc.perform(get("/api/documents/" + "99xaa")).andExpect(status().isNotFound());
+    this.mockMvc.perform(get("/documents/" + "99xaa")).andExpect(status().isNotFound());
 
     verify(docService, times(1)).findDocById("99xaa", user);
   }
