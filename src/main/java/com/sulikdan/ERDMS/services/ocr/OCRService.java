@@ -15,15 +15,4 @@ public interface OCRService {
 
   Doc extractTextFromDoc(Doc doc);
 
-//  Document extractTextFromDocument(
-//      Document document, String language, Boolean multiPageFile, Boolean highQuality);
-//
-//  List<Document> extractTextFromDocuments(
-//      List<Document> document, String language, Boolean multiPageFile, Boolean highQuality);
-//
-//  Document extractTextFromDocumentAsync(
-//      Document document, String language, Boolean multiPageFile, Boolean highQuality);
-//
-//  List<Document> extractTextFromDocumentsAsync(
-//      List<Document> document, String language, Boolean multiPageFile, Boolean highQuality);
 }

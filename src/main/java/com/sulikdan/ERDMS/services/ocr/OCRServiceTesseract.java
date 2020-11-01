@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
  * @version 1.0
  * @since 22-Jul-20
  */
-// https://www.baeldung.com/spring-bean-scopes
-// @Scope("prototype") TODO necessary??
 @Slf4j
 @Service
 public class OCRServiceTesseract extends OcrRestApiSettings implements OCRService {

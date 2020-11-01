@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 /**
  * Created by Daniel Šulik on 31-Jul-20
  *
- * <p>Class OcrRestApiSettings is used for .....
+ * <p>Class OcrRestApiSettings is class covering all necessary details to connect to OCR-API.
  */
 @Component
 public class OcrRestApiSettings {
