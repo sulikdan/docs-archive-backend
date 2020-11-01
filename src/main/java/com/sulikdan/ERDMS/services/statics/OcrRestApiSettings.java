@@ -23,8 +23,8 @@ public class OcrRestApiSettings {
     this.ocrProperties = ocrProperties;
 
     SYNC = "/sync";
-    IMG_DOC_CONTRL = "/document";
-    PDF_DOC_CONTRL = "/pdf";
+    IMG_DOC_CONTRL = "/documents";
+    PDF_DOC_CONTRL = "/pdfs";
     STRGE_DOC_CONTRL = "/storage";
 
     BASE_URI =
