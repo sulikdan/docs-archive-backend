@@ -162,7 +162,7 @@ public class UserServiceImpl implements UserService {
     }
 
     //    verify date ---> less than 1 day else error
-    if (Duration.between(resetToken.get().getCreatedDate(), LocalDate.now()).toDays() >= 1) {
+    if ( resetToken.get().getCreatedDate() != null && Duration.between(resetToken.get().getCreatedDate(), LocalDate.now()).toDays() >= 1) {
       resetTokenService.deleteResetToken(resetTokenId);
       throw new RuntimeException("Token too old, not vlaid ... Not found page");
     }
