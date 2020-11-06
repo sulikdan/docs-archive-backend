@@ -138,4 +138,31 @@ class DocServiceImplTest {
   @Ignore
   @Test
   void updateDocument() {}
+
+  @Test
+  void findDocById() {}
+
+  @Test
+  void findAllDocs() {}
+
+  @Test
+  void processNewDocs() {}
+
+  @Test
+  void deleteDocumentById() {}
+
+  @Test
+  void createNewDoc() {}
+
+  @Test
+  void saveDoc() {}
+
+  @Test
+  void testUpdateDocument() {}
+
+  @Test
+  void finDocumentsByAsyncApiState() {}
+
+  @Test
+  void testFindDocsUsingSearchParams() {}
 }
