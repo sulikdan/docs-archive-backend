@@ -20,6 +20,14 @@ logging:
     org.springframework.web: debug
     org.hibernate: ERROR
 
+# Swagger springdoc
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
 #spring:
 #  mail:
 #    host: smtp.gmail.com
