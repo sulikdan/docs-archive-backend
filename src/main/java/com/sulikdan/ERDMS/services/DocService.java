@@ -60,7 +60,7 @@ public interface DocService {
    * @param doc object to be updated using provided Id in document
    * @param user
    */
-  void updateDocument(Doc doc, User user);
+  void updateDoc(Doc doc, User user);
 
   /**
    * TODO
@@ -72,7 +72,7 @@ public interface DocService {
    */
   List<Doc> processNewDocs(MultipartFile[] files, DocConfig docConfig, User user) throws IOException;
 
-  void deleteDocumentById(String id, User user);
+  void deleteDocById(String id, User user);
 
   List<Doc> finDocumentsByAsyncApiState(AsyncApiState asyncApiState);
 

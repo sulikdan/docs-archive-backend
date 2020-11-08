@@ -127,7 +127,7 @@ public class DocServiceImpl implements DocService {
   }
 
   @Override
-  public void deleteDocumentById(String id, User user) {
+  public void deleteDocById(String id, User user) {
     final Optional<Doc> found = documentRepository.findById(id);
     if (found.isPresent()) {
       if (found.get().getOwner().getId().equals(user.getId()))
@@ -165,7 +165,7 @@ public class DocServiceImpl implements DocService {
 
   //  @Transactional
   @Override
-  public void updateDocument(Doc doc, User user) {
+  public void updateDoc(Doc doc, User user) {
 
     Optional<Doc> foundDocOptional = documentRepository.findById(doc.getId());
     if (!foundDocOptional.isPresent()) {

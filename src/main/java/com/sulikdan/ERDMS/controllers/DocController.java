@@ -15,6 +15,7 @@ import com.sulikdan.ERDMS.entities.users.User;
 import com.sulikdan.ERDMS.exceptions.UnsupportedLanguageException;
 import com.sulikdan.ERDMS.services.DocService;
 import com.sulikdan.ERDMS.services.users.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -75,6 +76,18 @@ public class DocController {
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
   }
 
+  /**
+   * Uploads selected file or files  with configuration to scan.
+   * @param files
+   * @param lang language of file/s
+   * @param multiPageFile if document is multipaged file
+   * @param highQuality if scanning has to be scanned with higher quality
+   * @param scanImmediately if document has to scanned immediatly
+   * @return Documents created from the file/s.
+   * @throws JsonProcessingException
+   * @throws IOException
+   */
+  @Operation(summary = "Uploads selected file or files  with configuration to scan.")
   @ResponseBody
   @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> uploadAndExtractTextSync(
@@ -101,9 +114,16 @@ public class DocController {
     List<DocDto> foundDocDtos = convertDocToDocDtoWithLinks(uploadedDocList);
 
     return ResponseEntity.status(HttpStatus.OK)
-            .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(foundDocDtos));
+            .body(mapper.writeValueAsString(foundDocDtos));
   }
 
+  /**
+   * Search document specified by documentId.
+   * @param documentId
+   * @return found document or nothing
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Search document specified by documentId.")
   @GetMapping(value = "/{documentId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> getDoc(@PathVariable String documentId)
           throws JsonProcessingException {
@@ -119,14 +139,21 @@ public class DocController {
       toReturnDocDto.add(selfLink);
 
       return ResponseEntity.status(HttpStatus.OK)
-              .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(toReturnDocDto));
+              .body(mapper.writeValueAsString(toReturnDocDto));
 
     } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND)
-              .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(""));
+              .body(mapper.writeValueAsString(""));
     }
   }
 
+  /**
+   * Gets documents specified by searchDocParams or by default, first 20 docs.
+   * @param searchDocParams specifies search params for documents
+   * @return found documents to corresponding search options
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Gets documents specified by searchDocParams or by default, first 20 docs.")
   @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> getDocs(String searchDocParams) throws JsonProcessingException {
 
@@ -142,30 +169,32 @@ public class DocController {
     } catch (Exception e) {
       System.out.println("it fucked..");
       System.out.println(e.getMessage());
+      convertedParams = new SearchDocParams();
     }
 
-    log.info("Search doc params input:" + searchDocParams.toString());
+    log.info("Search doc params input:" + searchDocParams);
     log.info("Search doc params mapped:" + convertedParams.toString());
 
     User user = loadConnectedUser();
     Page<Doc> pagedDocs;
-    if (convertedParams != null
-            && convertedParams.getPageIndex() != null
-            && convertedParams.getPageSize() != null) {
-      pagedDocs =
-              docService.findDocsUsingSearchParams(
-                      convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize(), user);
-    } else {
-      log.warn("Called default doc search.");
-      pagedDocs = docService.findDocsUsingSearchParams(convertedParams, 0, 20, user);
-    }
+
+    pagedDocs =
+            docService.findDocsUsingSearchParams(
+                    convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize(), user);
 
     Page<DocDto> pagedDocDtos = convertDocToDocDtoWithLinks(pagedDocs);
 
     return ResponseEntity.status(HttpStatus.OK)
-            .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(pagedDocDtos));
+            .body(mapper.writeValueAsString(pagedDocDtos));
   }
 
+  /**
+   * Returns file contained in document.
+   * @param documentId
+   * @return found file or null
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Returns file contained in document.")
   @GetMapping(value = "/{documentId}/file", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public ResponseEntity<byte[]> getDocFile(@PathVariable String documentId)
           throws JsonProcessingException {
@@ -185,8 +214,16 @@ public class DocController {
     }
   }
 
+  /**
+   * Patches document.
+   * @param id of ducment to be updated
+   * @param updateDoc to be used as source of copying
+   * @return
+   * @throws JsonProcessingException
+   */
+  @Operation(summary = "Patches document.")
   @PatchMapping(value = "/{id}")
-  public ResponseEntity<String> update(
+  public ResponseEntity<String> patchDoc(
           @PathVariable("id") final String id, @RequestBody String updateDoc)
           throws JsonProcessingException {
     log.info("Patching.." + updateDoc);
@@ -208,20 +245,30 @@ public class DocController {
 
     User user = loadConnectedUser();
 
-    docService.updateDocument(docResourece, user);
+    docService.updateDoc(docResourece, user);
     return ResponseEntity.status(HttpStatus.OK)
-            .body(mapper.writerWithDefaultPrettyPrinter().writeValueAsString("OK"));
+            .body(mapper.writeValueAsString("OK"));
   }
 
+  /**
+   * Deletes document.
+   * @param id of document to deleted
+   */
+  @Operation(summary = "Deletes document.")
   @DeleteMapping(value = "/{id}")
   @ResponseStatus(HttpStatus.OK)
-  public void deleteDocument(@PathVariable("id") final String id) {
+  public void deleteDoc(@PathVariable("id") final String id) {
     log.info("Deleting document:" + id);
 
     User user = loadConnectedUser();
-    docService.deleteDocumentById(id, user);
+    docService.deleteDocById(id, user);
   }
 
+  /**
+   * Converts pagedList of docs to docDto
+   * @param pagedDocList pagedDocsList to be converted
+   * @return already converted docs
+   */
   private Page<DocDto> convertDocToDocDtoWithLinks(Page<Doc> pagedDocList) {
 
     List<DocDto> docDtos = new ArrayList<>();
@@ -233,6 +280,11 @@ public class DocController {
     return new PageImpl<>(docDtos, pagedDocList.getPageable(), pagedDocList.getTotalElements());
   }
 
+  /**
+   * Converts list of docs to docDto
+   * @param docList docs to be converted
+   * @return already converted docs
+   */
   private List<DocDto> convertDocToDocDtoWithLinks(List<Doc> docList) {
 
     List<DocDto> docDtos = new ArrayList<>();
@@ -244,6 +296,11 @@ public class DocController {
     return docDtos;
   }
 
+  /**
+   * Transforms doc to docDto and add to list
+   * @param docDtos list of docDtos to be added
+   * @param doc doc to be converted
+   */
   private void docToDocDtoInList(List<DocDto> docDtos, Doc doc) {
     DocDto docDto = docDtoConverter.convertToDto(doc);
     Link selfLink = linkTo(DocController.class).slash(docDto.getId()).withSelfRel();
@@ -253,6 +310,10 @@ public class DocController {
     docDtos.add(docDto);
   }
 
+  /**
+   * Loads currently connected user.
+   * @return user that is connected.
+   */
   private User loadConnectedUser() {
     final String username = SecurityContextHolder.getContext().getAuthentication().getName();
     final Optional<User> userLoaded = userService.loadUserByUserName(username);

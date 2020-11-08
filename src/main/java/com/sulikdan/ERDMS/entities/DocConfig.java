@@ -1,9 +1,6 @@
 package com.sulikdan.ERDMS.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.HashMap;
@@ -22,15 +19,22 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class DocConfig {
 
   // OCR properties
-  Boolean highQuality;
-  Boolean multiPage;
-  String lang;
+  @Builder.Default
+  Boolean highQuality = false;
+
+  @Builder.Default
+  Boolean multiPage = false;
+
+  @Builder.Default
+  String lang  = "eng";
 
   // Doc properties
-  Boolean scanImmediately;
+  @Builder.Default
+  Boolean scanImmediately = false;
 
 
   public Map<String,String> getOcrPropertiesAsMap_X(){

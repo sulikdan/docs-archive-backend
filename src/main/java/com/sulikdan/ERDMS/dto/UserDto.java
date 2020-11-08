@@ -21,4 +21,10 @@ public class UserDto {
   private String username;
   @Email private String email;
   private String password;
+
+  public UserDto(UserDto userDto) {
+    this.username = userDto.username;
+    this.email = userDto.email;
+    this.password = userDto.password;
+  }
 }

@@ -10,6 +10,7 @@ import com.sulikdan.ERDMS.exceptions.NotValidNewUserException;
 import com.sulikdan.ERDMS.services.users.ConfirmationTokenService;
 import com.sulikdan.ERDMS.services.users.UserService;
 import io.netty.util.internal.StringUtil;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class UserController {
   private final UserService userService;
   private final ConfirmationTokenService confirmationTokenService;
   private final AuthenticationManager authenticationManager;
-  private final UserService userDetailsService;
+//  private final UserService userDetailsService;
   private final JwtTokenUtil jwtTokenUtil;
   private final ObjectMapper mapper;
 
@@ -47,21 +48,32 @@ public class UserController {
       ObjectMapper mapper,
       ConfirmationTokenService confirmationTokenService,
       AuthenticationManager authenticationManager,
-      UserService userDetailsService,
       JwtTokenUtil jwtTokenUtil) {
     this.userService = userService;
     this.confirmationTokenService = confirmationTokenService;
     this.authenticationManager = authenticationManager;
-    this.userDetailsService = userDetailsService;
+//    this.userDetailsService = userDetailsService;
     this.jwtTokenUtil = jwtTokenUtil;
     this.mapper = new ObjectMapper();
   }
 
+  /**
+   * Testing endpoint for the controller
+   * @return Hello world
+   */
+  @Operation(summary = "An endpoint to test availability of controller.")
   @GetMapping(value ="/hello")
   public String firstPage() {
     return "Hello World";
   }
 
+  /**
+   * An endpoint to authenticate or create new authentication jwtToken.
+   * @param authenticationRequest object containing username and password
+   * @return jwtToken
+   * @throws Exception
+   */
+  @Operation(summary = "An endpoint to authenticate or create new authentication jwtToken.")
   @PostMapping(value = "/authenticate")
   public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
       throws Exception {
@@ -69,7 +81,7 @@ public class UserController {
     authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
     final UserDetails userDetails =
-        userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        userService.loadUserByUsername(authenticationRequest.getUsername());
 
     final String token = jwtTokenUtil.generateToken(userDetails);
 
@@ -77,6 +89,12 @@ public class UserController {
     return ResponseEntity.ok(new JwtResponse(token));
   }
 
+  /**
+   * A method to authenticate current log-in username and passowrd.
+   * @param username
+   * @param password
+   * @throws Exception
+   */
   private void authenticate(String username, String password) throws Exception {
     try {
       authenticationManager.authenticate(
@@ -88,24 +106,37 @@ public class UserController {
     }
   }
 
+  /**
+   * An endpoint to register new account.
+   * @param userDto new account data
+   * @return registered account
+   * @throws Exception
+   */
+  @Operation(summary = "An endpoint to register new account.")
   @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<?> saveUser(@RequestBody UserDto user) throws Exception {
+  public ResponseEntity<?> saveUser(@RequestBody UserDto userDto) throws Exception {
 
-    if (StringUtil.isNullOrEmpty(user.getEmail()))
+    if (StringUtil.isNullOrEmpty(userDto.getEmail()))
       throw new NotValidNewUserException("Empty email!");
-    if (StringUtil.isNullOrEmpty(user.getUsername()) || user.getUsername().length() <= 5)
+    if (StringUtil.isNullOrEmpty(userDto.getUsername()) || userDto.getUsername().length() <= 5)
       throw new NotValidNewUserException("Empty username or length is less than 5!");
-    if (StringUtil.isNullOrEmpty(user.getPassword()) || user.getPassword().length() <= 5)
+    if (StringUtil.isNullOrEmpty(userDto.getPassword()) || userDto.getPassword().length() <= 5)
       throw new NotValidNewUserException("Empty password or length is less than 5!");
 
-    if (userService.loadUserByUserName(user.getUsername()).isPresent()
-        || userService.loadUserByEmail(user.getEmail()).isPresent()) {
+    if (userService.loadUserByUserName(userDto.getUsername()).isPresent()
+        || userService.loadUserByEmail(userDto.getEmail()).isPresent()) {
       throw new NotValidNewUserException("Username or Email is already used!");
     }
 
-    return ResponseEntity.ok(userDetailsService.registerUser(user));
+    UserDto userDto2 = userService.registerUser(userDto);
+    return ResponseEntity.ok(userDto2);
   }
 
+  /**
+   * Confirmation endpoint to register an account.
+   * @param token is confirmation string.
+   */
+  @Operation(summary = "Confirmation endpoint to register an account.")
   @ResponseStatus(code = HttpStatus.OK)
   @PostMapping("/register/confirm")
   void confirmMail(@RequestParam("token") String token) {
@@ -115,6 +146,13 @@ public class UserController {
     optionalConfirmationToken.ifPresent(userService::confirmUserRegistration);
   }
 
+  /**
+   * Used to begin a process of reseting account.
+   * @param emailJson email address of account that is going to be reset.
+   * @return Result string status.
+   * @throws Exception
+   */
+  @Operation(summary = "Used to begin a process of reseting account.")
   @PostMapping(
       value = "/resetAccount",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -136,11 +174,19 @@ public class UserController {
       //      TODO create special Exception for not know user ...
 
     } catch (Error e) {
-      log.info("WTF???");
+      log.info("Account was not reset, because of error.");
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
 
+  /**
+   * Used to reset password of the user's account.
+   * @param resetToken token generated before, to reset account
+   * @param passwordJson new password to be used to replace old one
+   * @return Status of being reset positively or negatively.
+   * @throws Exception
+   */
+  @Operation(summary = "To reset password.")
   @PostMapping(value = "/resetAccount/{resetToken}", consumes = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> resetPassword(
       @PathVariable String resetToken, @RequestBody String passwordJson) throws Exception {

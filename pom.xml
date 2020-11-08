@@ -119,7 +119,7 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.4.3</version>
+            <version>1.4.8</version>
         </dependency>
 
         <dependency>
@@ -231,7 +231,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <apiDocsUrl>http://localhost:8080/v3/api-docs</apiDocsUrl>
+                    <apiDocsUrl>http://localhost:8085/v3/api-docs</apiDocsUrl>
                     <outputFileName>openapi.json</outputFileName>
                     <outputDir>${project.build.directory}</outputDir>
                 </configuration>

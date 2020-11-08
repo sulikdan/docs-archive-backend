@@ -32,6 +32,7 @@ import java.util.List;
 @Setter
 @Builder
 @ToString
+@NoArgsConstructor
 @EqualsAndHashCode // TODO in future think about better approach, lombok might not be the best tool
 @QueryEntity
 @Document(collection = "documents")
@@ -81,7 +82,6 @@ public class Doc {
   @DBRef
   private User owner;
 
-  public Doc() {}
 
   public Doc(
           String id, List<DocPage> docPageList, String nameOfFile, DocType docType, AsyncApiInfo asyncApiInfo, DocConfig docConfig) {
