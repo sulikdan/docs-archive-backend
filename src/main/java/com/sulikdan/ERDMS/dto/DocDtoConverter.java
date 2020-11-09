@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by Daniel Šulik on 19-Sep-20
  *
- * <p>Class DocDtoConverter is used for .....
+ * <p>Class DocDtoConverter is used to converter between Doc and DocDto.
  */
 @Component
 public class DocDtoConverter {
@@ -30,6 +30,7 @@ public class DocDtoConverter {
       docDto.setDocState(toConvert.getAsyncApiInfo().getAsyncApiState());
     if( toConvert.getDocumentPreview() != null )
       docDto.setDocumentPreview(Base64.getEncoder().encodeToString(toConvert.getDocumentPreview()));
+
     if(  toConvert.getTags() != null ){
       List<Tag> tags = new ArrayList<>();
       toConvert.getTags().forEach(tag -> tags.add(new Tag(tag.getTagType())));
@@ -44,6 +45,7 @@ public class DocDtoConverter {
     AsyncApiInfo apiInfo = new AsyncApiInfo();
     apiInfo.setAsyncApiState(toConvert.getDocState());
     doc.setAsyncApiInfo(apiInfo);
+
     if( toConvert.getTags() != null ){
       List<Tag> tags = new ArrayList<>();
       toConvert.getTags().forEach(tag -> tags.add(new Tag(tag.getTagType())));

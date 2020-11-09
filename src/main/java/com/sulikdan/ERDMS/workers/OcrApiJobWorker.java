@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 /**
  * Created by Daniel Šulik on 25-Jul-20
@@ -59,7 +60,10 @@ public class OcrApiJobWorker implements Runnable {
             MessageFormat.format(
                 "There was issue with OCR scanning document {0}.\n With error message: {1}.",
                 returned.getId(), e.getMessage()));
-        e.getStackTrace();
+        log.error(Arrays.toString(e.getStackTrace()));
+
+        e.printStackTrace();
+
         // remove from map containing docs in use
         virtualStorageService.deleteDoc(returned.getId());
 
