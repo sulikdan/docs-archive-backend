@@ -36,7 +36,6 @@ import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
-
 /**
  * Created by Daniel Šulik on 18-Jul-20
  *
@@ -62,10 +61,10 @@ public class DocController {
   private final ObjectMapper mapper;
 
   public DocController(
-          DocService docService,
-          DocDtoConverter docDtoConverter,
-          UserService userService,
-          JwtTokenUtil jwtTokenUtil) {
+      DocService docService,
+      DocDtoConverter docDtoConverter,
+      UserService userService,
+      JwtTokenUtil jwtTokenUtil) {
     this.docService = docService;
     this.docDtoConverter = docDtoConverter;
     this.userService = userService;
@@ -77,7 +76,8 @@ public class DocController {
   }
 
   /**
-   * Uploads selected file or files  with configuration to scan.
+   * Uploads selected file or files with configuration to scan.
+   *
    * @param files
    * @param lang language of file/s
    * @param multiPageFile if document is multipaged file
@@ -91,12 +91,12 @@ public class DocController {
   @ResponseBody
   @PostMapping(consumes = "multipart/form-data", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> uploadAndExtractTextSync(
-          @RequestPart("files") MultipartFile[] files,
-          @RequestParam(value = "lang", defaultValue = "eng") String lang,
-          @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
-          @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality,
-          @RequestParam(value = "scanImmediately", defaultValue = "false") Boolean scanImmediately)
-          throws JsonProcessingException, IOException {
+      @RequestPart("files") MultipartFile[] files,
+      @RequestParam(value = "lang", defaultValue = "eng") String lang,
+      @RequestParam(value = "multiPageFile", defaultValue = "false") Boolean multiPageFile,
+      @RequestParam(value = "highQuality", defaultValue = "false") Boolean highQuality,
+      @RequestParam(value = "scanImmediately", defaultValue = "false") Boolean scanImmediately)
+      throws JsonProcessingException, IOException {
     log.info("Getting file.");
 
     User user = loadConnectedUser();
@@ -111,14 +111,14 @@ public class DocController {
 
     List<Doc> uploadedDocList = docService.processNewDocs(files, docConfig, user);
 
-    List<DocDto> foundDocDtos = convertDocToDocDtoWithLinks(uploadedDocList);
+    List<DocDto> foundDocDtos = convertDocToDocDtoWithLinks(uploadedDocList, user);
 
-    return ResponseEntity.status(HttpStatus.OK)
-            .body(mapper.writeValueAsString(foundDocDtos));
+    return ResponseEntity.status(HttpStatus.OK).body(mapper.writeValueAsString(foundDocDtos));
   }
 
   /**
    * Search document specified by documentId.
+   *
    * @param documentId
    * @return found document or nothing
    * @throws JsonProcessingException
@@ -126,7 +126,7 @@ public class DocController {
   @Operation(summary = "Search document specified by documentId.")
   @GetMapping(value = "/{documentId}", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<String> getDoc(@PathVariable String documentId)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
 
     User user = loadConnectedUser();
 
@@ -138,17 +138,16 @@ public class DocController {
       Link selfLink = linkTo(DocController.class).slash(toReturnDocDto.getId()).withSelfRel();
       toReturnDocDto.add(selfLink);
 
-      return ResponseEntity.status(HttpStatus.OK)
-              .body(mapper.writeValueAsString(toReturnDocDto));
+      return ResponseEntity.status(HttpStatus.OK).body(mapper.writeValueAsString(toReturnDocDto));
 
     } else {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-              .body(mapper.writeValueAsString(""));
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapper.writeValueAsString(""));
     }
   }
 
   /**
    * Gets documents specified by searchDocParams or by default, first 20 docs.
+   *
    * @param searchDocParams specifies search params for documents
    * @return found documents to corresponding search options
    * @throws JsonProcessingException
@@ -179,17 +178,17 @@ public class DocController {
     Page<Doc> pagedDocs;
 
     pagedDocs =
-            docService.findDocsUsingSearchParams(
-                    convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize(), user);
+        docService.findDocsUsingSearchParams(
+            convertedParams, convertedParams.getPageIndex(), convertedParams.getPageSize(), user);
 
-    Page<DocDto> pagedDocDtos = convertDocToDocDtoWithLinks(pagedDocs);
+    Page<DocDto> pagedDocDtos = convertDocToDocDtoWithLinks(pagedDocs, user);
 
-    return ResponseEntity.status(HttpStatus.OK)
-            .body(mapper.writeValueAsString(pagedDocDtos));
+    return ResponseEntity.status(HttpStatus.OK).body(mapper.writeValueAsString(pagedDocDtos));
   }
 
   /**
    * Returns file contained in document.
+   *
    * @param documentId
    * @return found file or null
    * @throws JsonProcessingException
@@ -197,7 +196,7 @@ public class DocController {
   @Operation(summary = "Returns file contained in document.")
   @GetMapping(value = "/{documentId}/file", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
   public ResponseEntity<byte[]> getDocFile(@PathVariable String documentId)
-          throws JsonProcessingException {
+      throws JsonProcessingException {
 
     User user = loadConnectedUser();
 
@@ -205,9 +204,9 @@ public class DocController {
 
     if (foundDoc != null) {
       return ResponseEntity.status(HttpStatus.OK)
-              .header(
-                      "Content-Disposition", "attachment; filename=\"" + foundDoc.getNameOfFile() + "\"")
-              .body(foundDoc.getDocumentAsBytes());
+          .header(
+              "Content-Disposition", "attachment; filename=\"" + foundDoc.getNameOfFile() + "\"")
+          .body(foundDoc.getDocumentAsBytes());
       //      return foundDoc.getDocumentAsBytes();
     } else {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -216,6 +215,7 @@ public class DocController {
 
   /**
    * Patches document.
+   *
    * @param id of ducment to be updated
    * @param updateDoc to be used as source of copying
    * @return
@@ -224,8 +224,8 @@ public class DocController {
   @Operation(summary = "Patches document.")
   @PatchMapping(value = "/{id}")
   public ResponseEntity<String> patchDoc(
-          @PathVariable("id") final String id, @RequestBody String updateDoc)
-          throws JsonProcessingException {
+      @PathVariable("id") final String id, @RequestBody String updateDoc)
+      throws JsonProcessingException {
     log.info("Patching.." + updateDoc);
     Preconditions.checkNotNull(updateDoc);
 
@@ -246,12 +246,12 @@ public class DocController {
     User user = loadConnectedUser();
 
     docService.updateDoc(docResourece, user);
-    return ResponseEntity.status(HttpStatus.OK)
-            .body(mapper.writeValueAsString("OK"));
+    return ResponseEntity.status(HttpStatus.OK).body(mapper.writeValueAsString("OK"));
   }
 
   /**
    * Deletes document.
+   *
    * @param id of document to deleted
    */
   @Operation(summary = "Deletes document.")
@@ -266,15 +266,16 @@ public class DocController {
 
   /**
    * Converts pagedList of docs to docDto
+   *
    * @param pagedDocList pagedDocsList to be converted
    * @return already converted docs
    */
-  private Page<DocDto> convertDocToDocDtoWithLinks(Page<Doc> pagedDocList) {
+  private Page<DocDto> convertDocToDocDtoWithLinks(Page<Doc> pagedDocList, User user) {
 
     List<DocDto> docDtos = new ArrayList<>();
 
     for (Doc doc : pagedDocList.getContent()) {
-      docToDocDtoInList(docDtos, doc);
+      docToDocDtoInList(docDtos, doc, user);
     }
 
     return new PageImpl<>(docDtos, pagedDocList.getPageable(), pagedDocList.getTotalElements());
@@ -282,15 +283,16 @@ public class DocController {
 
   /**
    * Converts list of docs to docDto
+   *
    * @param docList docs to be converted
    * @return already converted docs
    */
-  private List<DocDto> convertDocToDocDtoWithLinks(List<Doc> docList) {
+  private List<DocDto> convertDocToDocDtoWithLinks(List<Doc> docList, User user) {
 
     List<DocDto> docDtos = new ArrayList<>();
 
     for (Doc doc : docList) {
-      docToDocDtoInList(docDtos, doc);
+      docToDocDtoInList(docDtos, doc, user);
     }
 
     return docDtos;
@@ -298,20 +300,27 @@ public class DocController {
 
   /**
    * Transforms doc to docDto and add to list
+   *
    * @param docDtos list of docDtos to be added
    * @param doc doc to be converted
    */
-  private void docToDocDtoInList(List<DocDto> docDtos, Doc doc) {
+  private void docToDocDtoInList(List<DocDto> docDtos, Doc doc, User user) {
     DocDto docDto = docDtoConverter.convertToDto(doc);
     Link selfLink = linkTo(DocController.class).slash(docDto.getId()).withSelfRel();
     Link fileLink = linkTo(DocController.class).slash(docDto.getId()).slash("file").withRel("file");
     docDto.add(selfLink);
     docDto.add(fileLink);
+    if (user != null && doc.getOwner() != null && doc.getOwner().getId().equals(user.getId())) {
+      docDto.setIsOwner(true);
+    } else {
+      docDto.setIsOwner(false);
+    }
     docDtos.add(docDto);
   }
 
   /**
    * Loads currently connected user.
+   *
    * @return user that is connected.
    */
   private User loadConnectedUser() {
