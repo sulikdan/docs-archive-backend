@@ -177,6 +177,7 @@ public class DocServiceImpl implements DocService {
 
     Doc foundDoc = foundDocOptional.get();
     doc.setNameOfFile(foundDoc.getNameOfFile());
+    doc.setOwner(foundDoc.getOwner());
     //    TODO do other params + should check null values ?
 
     saveDoc(doc);
