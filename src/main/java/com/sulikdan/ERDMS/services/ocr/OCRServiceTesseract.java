@@ -51,7 +51,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
       } else if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.PROCESSING) {
         // Checking document status
         String statusUri =
-            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocStatus(), SPLIT_PATTERN);
+            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocStatus());
 
         AsyncApiInfo asyncApiInfo = restApiOcr.getDocStatus(statusUri);
         if (asyncApiInfo == null) return null;
@@ -61,7 +61,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
       } else if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.SCANNED) {
         //    Downloading scanned document
         String resultUri =
-            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
+            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocResult());
 
         TessApiDoc resultDoc = restApiOcr.getDocResult(resultUri);
         if (resultDoc == null) {
@@ -76,7 +76,7 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
       } else if (doc.getAsyncApiInfo().getAsyncApiState() == AsyncApiState.RESOURCE_TO_CLEAN) {
         //        deleting resources
         String resultUri =
-            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocResult(), SPLIT_PATTERN);
+            extractUriFromWholeURL(doc.getAsyncApiInfo().getOcrApiDocResult());
 
         if (restApiOcr.deleteDoc(resultUri)) {
           doc.getAsyncApiInfo().setAsyncApiState(AsyncApiState.COMPLETED);
@@ -99,11 +99,11 @@ public class OCRServiceTesseract extends OcrRestApiSettings implements OCRServic
    * Returns location of resource without domain.
    *
    * @param url from which will be extracted
-   * @param patternToSplit will be used to split and return second part.
    * @return
    */
-  private String extractUriFromWholeURL(String url, String patternToSplit) {
-    final String uriFromUrl = url.split(patternToSplit)[1];
+  private String extractUriFromWholeURL(String url) {
+    log.info("Extracting URI from url: ->" + url + "<-");
+    final String uriFromUrl = url.split(SPLIT_PATTERN)[1];
     log.debug("-->>||-->> Url before: " + url + " || after: " + uriFromUrl);
     return uriFromUrl;
   }
