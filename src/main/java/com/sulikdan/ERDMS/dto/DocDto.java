@@ -57,4 +57,6 @@ public class DocDto extends RepresentationModel<DocDto> {
     private List<Tag> tags;
 
     private Boolean isShared;
+
+    private Boolean isOwner;
 }
