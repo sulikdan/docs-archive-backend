@@ -14,7 +14,7 @@ To start current project, it is needed to have:
 * docker-compose
 
 ## Start-up application
-Before proceeding to following steps, it's necessary to download or copy *docker-compose.yml*, located in the folder *docker_commands*.
+Before proceeding to following steps, it's necessary to download or copy **docker-compose.yml**, located in the folder **docker_commands**.
 In the mentioned file are defined all necessary settings for starting up the app.
 
 Executing the following command, will be all necessary container images downloaded:
