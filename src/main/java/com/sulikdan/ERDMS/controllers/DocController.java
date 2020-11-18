@@ -353,6 +353,7 @@ public class DocController {
         return "english";
       case "czech":
       case "cz":
+      case "czk":
         return "czech";
       case "slovak":
       case "svk":
