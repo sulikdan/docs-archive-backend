@@ -34,7 +34,7 @@ public class User implements UserDetails {
 
     @Id
     @Builder.Default
-    private String id = new ObjectId().toString();;
+    private String id =  new ObjectId().toString();
 
 //    private String firstName;
 //    private String lastName;

@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.sulikdan.ERDMS.entities.*;
 import com.sulikdan.ERDMS.entities.users.User;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,15 +31,27 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
   @Override
   public Page<Doc> findDocsByMultipleArgs(SearchDocParams searchDocParams, User user) {
 
+//    String objectId = ObjectId().toString().substring(10,35);
+
     QDoc qDocument = new QDoc("doc");
     BooleanBuilder builder = new BooleanBuilder();
 
     //    Ids
-    BooleanBuilder builderIds = new BooleanBuilder();
-    for (String id : searchDocParams.getIds()) {
-      builderIds.or(qDocument.id.contains(id));
+//    BooleanBuilder builderIds = new BooleanBuilder();
+//    for (String id : searchDocParams.getIds()) {
+//      builderIds.or(qDocument.id.);
+//    }
+//    builder.and(builderIds);
+
+
+    // Text
+    BooleanBuilder builderText = new BooleanBuilder();
+    QDocPage qDocPage = new QDocPage("docPage");
+    for (String text : searchDocParams.getSearchedText()) {
+      builderText.or(qDocument.docPageList.any().content.containsIgnoreCase(text));
     }
-    builder.and(builderIds);
+
+    builder.and(builderText);
 
     //    States
     BooleanBuilder builderStates = new BooleanBuilder();
@@ -50,7 +63,7 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
     //    Languages
     BooleanBuilder builderLanguages = new BooleanBuilder();
     for (String language : searchDocParams.getLanguages()) {
-      builderLanguages.or(qDocument.docConfig.lang.eq(language));
+      builderLanguages.or(qDocument.docConfig.lang.equalsIgnoreCase(language));
     }
     builder.and(builderLanguages);
 

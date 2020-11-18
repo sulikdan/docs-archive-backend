@@ -12,6 +12,10 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.TextIndexDefinition;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,22 +51,30 @@ public class DocServiceImpl implements DocService {
   // repos
   private final DocRepository documentRepository;
 
+  private final MongoTemplate mongoTemplate;
+
   private final Set<String> mapSortColumns;
 
   public DocServiceImpl(
-      TaskExecutor taskExecutor,
-      OCRService ocrService,
-      VirtualStorageService virtualStorageService,
-      FileStorageService fileStorageService,
-      DocRepository documentRepository) {
+          TaskExecutor taskExecutor,
+          OCRService ocrService,
+          VirtualStorageService virtualStorageService,
+          FileStorageService fileStorageService,
+          DocRepository documentRepository, MongoTemplate mongoTemplate) {
     this.taskExecutor = taskExecutor;
     this.ocrService = ocrService;
     this.virtualStorageService = virtualStorageService;
     this.fileStorageService = fileStorageService;
     this.documentRepository = documentRepository;
+    this.mongoTemplate = mongoTemplate;
 
     String[] columnsChoices = {"id", "state", "language", "createddatetime", "updateddatetime"};
     mapSortColumns = new HashSet<>(Arrays.asList(columnsChoices));
+
+    TextIndexDefinition textIndex = new TextIndexDefinition.TextIndexDefinitionBuilder()
+            .onAllFields()
+            .build();
+    mongoTemplate.indexOps(Doc.class).ensureIndex(textIndex);
   }
 
   @Override
@@ -130,10 +142,8 @@ public class DocServiceImpl implements DocService {
   public void deleteDocById(String id, User user) {
     final Optional<Doc> found = documentRepository.findById(id);
     if (found.isPresent()) {
-      if (found.get().getOwner().getId().equals(user.getId()))
-        documentRepository.deleteById(id);
-      else
-        throw new InvalidAccessRightException("You don't have rights to delete the document!");
+      if (found.get().getOwner().getId().equals(user.getId())) documentRepository.deleteById(id);
+      else throw new InvalidAccessRightException("You don't have rights to delete the document!");
     } else {
       throw new DocNotFoundException("Document not found!");
     }
@@ -170,8 +180,7 @@ public class DocServiceImpl implements DocService {
     Optional<Doc> foundDocOptional = documentRepository.findById(doc.getId());
     if (!foundDocOptional.isPresent()) {
       throw new DocNotFoundException("Requested document for update was not found!");
-    }
-    else if( !foundDocOptional.get().getOwner().getId().equals(user.getId()) ){
+    } else if (!foundDocOptional.get().getOwner().getId().equals(user.getId())) {
       throw new InvalidAccessRightException("You don't have rights to update the document!");
     }
 
@@ -217,8 +226,17 @@ public class DocServiceImpl implements DocService {
 
     checkSortColumn(searchDocParams);
 
-    Page<Doc> foundDocPages = documentRepository.findDocsByMultipleArgs(searchDocParams, user);
-
+    Page<Doc> foundDocPages;
+    if (searchDocParams.getFullText() != null && !searchDocParams.getFullText().isEmpty()) {
+      TextCriteria criteria =
+          TextCriteria.forDefaultLanguage().matching(searchDocParams.getFullText());
+      foundDocPages =
+          documentRepository.findAllBy(
+              criteria,
+              PageRequest.of(searchDocParams.getPageIndex(), searchDocParams.getPageSize()));
+    } else {
+      foundDocPages = documentRepository.findDocsByMultipleArgs(searchDocParams, user);
+    }
     return foundDocPages;
   }
 

@@ -12,10 +12,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.bson.types.ObjectId;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.Id;
+//import javax.persistence.Id;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +47,9 @@ public class Doc {
   @JsonProperty("pages")
   private List<DocPage> docPageList;
 
+
   @JsonProperty("origName")
+//  @TextIndexed
   private String nameOfFile;
 
   @JsonIgnore
@@ -55,14 +59,17 @@ public class Doc {
   @JsonProperty("documentPreview")
   private byte[] documentPreview;
 
+//  @TextIndexed
   private DocType docType;
 
+//  @TextIndexed
   @CreationTimestamp
   @Builder.Default
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   @JsonFormat(pattern="dd/MM/yyyy HH:mm")
   private LocalDateTime createDateTime = LocalDateTime.now();
 
+//  @TextIndexed
   @UpdateTimestamp
   @Builder.Default
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -124,6 +131,7 @@ public class Doc {
     this.docType         = docType;
     this.asyncApiInfo    = asyncApiInfo;
     this.docConfig = docConfig;
+
   }
 
   public Doc(

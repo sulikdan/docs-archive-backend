@@ -14,14 +14,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,8 +37,7 @@ import static org.mockito.Mockito.*;
  */
 class DocServiceImplTest {
 
-  @Mock
-  DocRepository documentRepository;
+  @Mock DocRepository documentRepository;
 
   @Mock DocCustomRepository customRepository;
 
@@ -52,6 +49,8 @@ class DocServiceImplTest {
 
   @Mock FileStorageService storageService;
 
+  MongoTemplate mongoTemplate;
+
   DocService docService;
 
   User user;
@@ -62,11 +61,18 @@ class DocServiceImplTest {
 
     user = User.builder().id("1234").username("tester").build();
 
-//    documentRepository = mock(DocRepository.class, RETURNS_DEEP_STUBS);
+    mongoTemplate = mock(MongoTemplate.class, RETURNS_DEEP_STUBS);
+
+    //    documentRepository = mock(DocRepository.class, RETURNS_DEEP_STUBS);
 
     docService =
         new DocServiceImpl(
-            taskExecutor, ocrService, virtualStorageService, storageService, documentRepository);
+            taskExecutor,
+            ocrService,
+            virtualStorageService,
+            storageService,
+            documentRepository,
+            mongoTemplate);
   }
 
   @Test
@@ -172,21 +178,21 @@ class DocServiceImplTest {
     verify(documentRepository).findById(anyString());
   }
 
-//  @Test
-//  void processNewDocs() throws IOException {
-//    // given
-//    MultipartFile[] files = new MultipartFile[1];
-//    MultipartFile result =
-//        new MockMultipartFile("name.png", "originalFileName", "text/plain", new byte[4]);
-//    files[0] = result;
-//    DocConfig docConfig = new DocConfig();
-//    User user = new User();
-//
-//    // when
-//    docService.processNewDocs(files, docConfig, user);
-//
-//    // then
-//  }
+  //  @Test
+  //  void processNewDocs() throws IOException {
+  //    // given
+  //    MultipartFile[] files = new MultipartFile[1];
+  //    MultipartFile result =
+  //        new MockMultipartFile("name.png", "originalFileName", "text/plain", new byte[4]);
+  //    files[0] = result;
+  //    DocConfig docConfig = new DocConfig();
+  //    User user = new User();
+  //
+  //    // when
+  //    docService.processNewDocs(files, docConfig, user);
+  //
+  //    // then
+  //  }
 
   //  Throw catch tests
   @Test

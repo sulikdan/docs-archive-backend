@@ -102,7 +102,7 @@ public class DocController {
     User user = loadConnectedUser();
 
     // check language
-    checkSupportedLanguages(lang);
+    lang = convertLanguageName(lang);
 
     // creating config with settings
     DocConfig docConfig = new DocConfig(highQuality, multiPageFile, lang, scanImmediately);
@@ -173,6 +173,13 @@ public class DocController {
 
     log.info("Search doc params input:" + searchDocParams);
     log.info("Search doc params mapped:" + convertedParams.toString());
+    if( !convertedParams.getLanguages().isEmpty() ){
+      List<String> langList = new ArrayList<>();
+      convertedParams.getLanguages().forEach(language -> {
+        langList.add(convertLanguageName(language));
+      });
+      convertedParams.setLanguages(langList);
+    }
 
     User user = loadConnectedUser();
     Page<Doc> pagedDocs;
@@ -338,12 +345,18 @@ public class DocController {
    *
    * @param language expecting string in lower-case
    */
-  private static void checkSupportedLanguages(String language) {
+  private static String convertLanguageName(String language){
+    language = language.toLowerCase();
     switch (language) {
+      case "english":
       case "eng":
+        return "english";
+      case "czech":
       case "cz":
+        return "czech";
+      case "slovak":
       case "svk":
-        return;
+        return "slovak";
       default:
         throw new UnsupportedLanguageException(language);
     }

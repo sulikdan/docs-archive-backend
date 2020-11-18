@@ -8,6 +8,7 @@ import com.sulikdan.ERDMS.services.DocService;
 import com.sulikdan.ERDMS.services.FileStorageService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,11 +42,11 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
 
     log.info("Loading documents.");
 
-    User user = saveTestUser();
-
-    List<Doc> docs = loadDocuments(user);
-
-    docs.forEach(docService::saveDoc);
+//    User user = saveTestUser();
+//
+//    List<Doc> docs = loadDocuments(user);
+//
+//    docs.forEach(docService::saveDoc);
     //    documentRepository.saveAll(documents);
 
     log.info("Documents should be loaded and stored");
@@ -95,7 +96,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
 
     Doc doc1 =
         Doc.builder()
-            .id("11xyz11")
+            .id(new ObjectId("11abc11011abc11011abc110").toString())
             .nameOfFile("JustRandomFile1.jpg")
             .docConfig(new DocConfig(false, false, "eng", false))
             .docPageList(null)
@@ -106,7 +107,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
 
     Doc doc2 =
         Doc.builder()
-            .id("22xyz22")
+            .id(new ObjectId("22abc22022abc22022abc220").toString())
             .nameOfFile("JustRandomFile2.jpg")
             .docConfig(new DocConfig(true, false, "svk", false))
             .docPageList(null)
@@ -115,7 +116,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
             .build();
     Doc doc3 =
         Doc.builder()
-            .id("33xyz33")
+            .id(new ObjectId("33abc33033abc33033abc330").toString())
             .nameOfFile("JustRandomFile3.jpg")
             .docConfig(new DocConfig(false, false, "eng", true))
             .docPageList(null)
@@ -125,7 +126,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
 
     Doc doc4 =
         Doc.builder()
-            .id("44xyz44")
+            .id(new ObjectId("44abc44044abc44044abc440").toString())
             .nameOfFile("JustRandomFile4.jpg")
             .docConfig(new DocConfig(false, false, "eng", false))
             .docPageList(null)
@@ -135,7 +136,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
 
     Doc doc5 =
         Doc.builder()
-            .id("55xyz55")
+            .id(new ObjectId("55abc55055abc55055abc550").toString())
             .nameOfFile("JustRandomFile5.jpg")
             .docConfig(new DocConfig(false, false, "svk", false))
             .docPageList(null)

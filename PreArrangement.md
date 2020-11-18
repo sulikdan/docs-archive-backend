@@ -429,3 +429,12 @@ e.g.: ```
 
 ### DOCKER VITAL STUFF
 ```docker run blablalblabl -p hostP```
+
+### Essential stuff
+* swagger url
+```springdoc:
+     api-docs:
+       path: /api-docs
+     swagger-ui:
+       path: /swagger-ui.html
+       operations-sorter: method```

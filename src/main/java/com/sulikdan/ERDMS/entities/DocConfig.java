@@ -1,6 +1,7 @@
 package com.sulikdan.ERDMS.entities;
 
 import lombok.*;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class DocConfig {
   @Builder.Default
   Boolean multiPage = false;
 
+//  @TextIndexed
   @Builder.Default
   String lang  = "eng";
 

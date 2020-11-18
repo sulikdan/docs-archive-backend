@@ -46,6 +46,8 @@ public class SearchDocParams {
   private List<String> columnSortList;
   private Boolean sortAscending;
 
+  private String fullText;
+
   public SearchDocParams() {
     this.pageIndex = 0;
     this.pageSize = 20;
@@ -63,6 +65,7 @@ public class SearchDocParams {
 
     this.columnSortList = new ArrayList<>();
     this.sortAscending = true;
+    this.fullText = null;
   }
 
   public SearchDocParams(
@@ -80,7 +83,8 @@ public class SearchDocParams {
       LocalDateTime updatedTo,
       Boolean isShared,
       List<String> columnSortList,
-      Boolean sortAscending) {
+      Boolean sortAscending,
+      String fullText) {
     this.pageIndex = pageIndex;
     this.pageSize = pageSize;
     this.ids = ids;
@@ -96,5 +100,6 @@ public class SearchDocParams {
     this.isShared = isShared;
     this.columnSortList = columnSortList;
     this.sortAscending = sortAscending;
+    this.fullText = fullText;
   }
 }

@@ -109,8 +109,8 @@ public class DocRepositoryIT {
     docParams.setPageIndex(0);
     docParams.setPageSize(5);
 
-    documentRepository.save(docList.get(1));
-    documentRepository.save(docList.get(2));
+//    documentRepository.save(docList.get(1));
+//    documentRepository.save(docList.get(2));
 
     //    mongoRepository.findA
     Page<Doc> pagedDocs = documentRepository.findDocsByMultipleArgs(docParams, user);

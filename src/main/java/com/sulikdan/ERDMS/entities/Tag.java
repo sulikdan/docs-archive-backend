@@ -1,9 +1,11 @@
 package com.sulikdan.ERDMS.entities;
 
+import com.querydsl.core.annotations.QueryEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 
 import java.util.Objects;
 
@@ -14,9 +16,12 @@ import java.util.Objects;
  */
 @Getter
 @Setter
+@QueryEntity
 @NoArgsConstructor
 @AllArgsConstructor
 public class Tag {
+
+//    @TextIndexed
     String tagType;
 
     @Override
