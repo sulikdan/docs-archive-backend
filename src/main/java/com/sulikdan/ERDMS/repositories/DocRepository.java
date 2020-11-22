@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
@@ -28,4 +29,12 @@ public interface DocRepository extends MongoRepository<Doc, String>, DocCustomRe
   List<Doc> findDocumentsBy(List<String> id);
 
   Page<Doc> findAllBy(TextCriteria criteria, Pageable pageable);
+
+//  Page<Doc> findAllBy(TextCriteria criteria);
+@Query("{$and:[ {'ownerId': ?0} , {'$text' : { '$search' : ?1}} ]}")
+Page<Doc> searchByByOwnerIdAndText(String ownerId, String keywords,
+                                        Pageable page);
+
+//  Page<Doc> findAllByOwnerIdAnd(
+//      String ownerId, TextCriteria criteria, Pageable pageable);
 }

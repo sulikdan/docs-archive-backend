@@ -12,10 +12,15 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.TextIndexDefinition;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,11 +61,12 @@ public class DocServiceImpl implements DocService {
   private final Set<String> mapSortColumns;
 
   public DocServiceImpl(
-          TaskExecutor taskExecutor,
-          OCRService ocrService,
-          VirtualStorageService virtualStorageService,
-          FileStorageService fileStorageService,
-          DocRepository documentRepository, MongoTemplate mongoTemplate) {
+      TaskExecutor taskExecutor,
+      OCRService ocrService,
+      VirtualStorageService virtualStorageService,
+      FileStorageService fileStorageService,
+      DocRepository documentRepository,
+      MongoTemplate mongoTemplate) {
     this.taskExecutor = taskExecutor;
     this.ocrService = ocrService;
     this.virtualStorageService = virtualStorageService;
@@ -71,9 +77,8 @@ public class DocServiceImpl implements DocService {
     String[] columnsChoices = {"id", "state", "language", "createddatetime", "updateddatetime"};
     mapSortColumns = new HashSet<>(Arrays.asList(columnsChoices));
 
-    TextIndexDefinition textIndex = new TextIndexDefinition.TextIndexDefinitionBuilder()
-            .onAllFields()
-            .build();
+    TextIndexDefinition textIndex =
+        new TextIndexDefinition.TextIndexDefinitionBuilder().onAllFields().build();
     mongoTemplate.indexOps(Doc.class).ensureIndex(textIndex);
   }
 
@@ -228,12 +233,19 @@ public class DocServiceImpl implements DocService {
 
     Page<Doc> foundDocPages;
     if (searchDocParams.getFullText() != null && !searchDocParams.getFullText().isEmpty()) {
-      TextCriteria criteria =
-          TextCriteria.forDefaultLanguage().matching(searchDocParams.getFullText());
-      foundDocPages =
-          documentRepository.findAllBy(
-              criteria,
-              PageRequest.of(searchDocParams.getPageIndex(), searchDocParams.getPageSize()));
+
+      PageRequest pageRequest = PageRequest.of(searchDocParams.getPageIndex(), searchDocParams.getPageSize());
+      Query query =
+          TextQuery.query(
+                  TextCriteria.forDefaultLanguage().matchingAny(searchDocParams.getFullText()))
+              .with(pageRequest);
+      Criteria orCriteria = new Criteria();
+
+      query.addCriteria(orCriteria.orOperator(Criteria.where("owner").is(user),(Criteria.where("isShared").is(Boolean.TRUE))));
+      List<Doc> list = mongoTemplate.find(query, Doc.class);
+      long count = mongoTemplate.count(query, Doc.class);
+      foundDocPages = new PageImpl<Doc>(list , pageRequest, count);
+
     } else {
       foundDocPages = documentRepository.findDocsByMultipleArgs(searchDocParams, user);
     }

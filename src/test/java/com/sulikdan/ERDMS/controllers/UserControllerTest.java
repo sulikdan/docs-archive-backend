@@ -190,7 +190,7 @@ class UserControllerTest {
 
     // then
     Assert.assertEquals(
-        "The account password was reset!", mvcResult.getResponse().getContentAsString());
+        mapper.writeValueAsString("The account password was reset!"), mvcResult.getResponse().getContentAsString());
     verify(userService).resetAccountPassword(anyString(), anyString());
   }
 }

@@ -200,9 +200,9 @@ public class UserController {
 
     try {
       userService.resetAccountPassword(resetToken, password);
-      return ResponseEntity.ok("The account password was reset!");
+      return ResponseEntity.status(HttpStatus.OK).body(mapper.writeValueAsString("The account password was reset!"));
     } catch (Error e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapper.writeValueAsString(e.getMessage()));
     }
   }
 }

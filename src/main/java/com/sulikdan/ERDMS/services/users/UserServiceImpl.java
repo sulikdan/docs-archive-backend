@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -145,7 +146,7 @@ public class UserServiceImpl implements UserService {
             + "If you have NOT requested this action, just ignore this message!"
             + "Please click on the below link to reset your DocsArchive account.\n"
             + frontEndDomainUrl
-            + "/reset/password/";
+            + "#/auth/reset/password?token=";
 
     final SimpleMailMessage emailMessage =
         createEmailMessage(email, subject, mailText, resetToken.getId());
@@ -162,14 +163,15 @@ public class UserServiceImpl implements UserService {
     }
 
     //    verify date ---> less than 1 day else error
-    if ( resetToken.get().getCreatedDate() != null && Duration.between(resetToken.get().getCreatedDate(), LocalDate.now()).toDays() >= 1) {
-      resetTokenService.deleteResetToken(resetTokenId);
-      throw new RuntimeException("Token too old, not vlaid ... Not found page");
+    if ( resetToken.get().getCreatedDate() != null && resetToken.get().getCreatedDate().compareTo(LocalDate.now().minusDays(1L)) < 0 ) {
+      if( resetToken.get().getCreatedDate() != null )
+        resetTokenService.deleteResetToken(resetTokenId);
+      throw new RuntimeException("Token too old, or not valid");
     }
 
     //    change password
     User user = resetToken.get().getUser();
-    user.setPassword(newPassword);
+    user.setPassword(bcryptEncoder.encode(newPassword));
     userRepository.save(user);
 
     //    delete token?

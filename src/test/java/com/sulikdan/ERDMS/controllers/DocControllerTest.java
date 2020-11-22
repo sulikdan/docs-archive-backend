@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sulikdan.ERDMS.configurations.configs.JwtTokenUtil;
-import com.sulikdan.ERDMS.controllers.ErrorHandlers.DocUploadExceptionAdvice;
+import com.sulikdan.ERDMS.controllers.ErrorHandlers.GeneralExceptionAdvice;
 import com.sulikdan.ERDMS.dto.DocDto;
 import com.sulikdan.ERDMS.dto.DocDtoConverter;
 import com.sulikdan.ERDMS.entities.AsyncApiInfo;
@@ -14,15 +14,12 @@ import com.sulikdan.ERDMS.entities.users.User;
 import com.sulikdan.ERDMS.services.DocService;
 import com.sulikdan.ERDMS.services.users.UserService;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -81,7 +78,7 @@ class DocControllerTest {
 
     mockMvc =
         MockMvcBuilders.standaloneSetup(docController)
-            .setControllerAdvice(new DocUploadExceptionAdvice())
+            .setControllerAdvice(new GeneralExceptionAdvice())
             .build();
 
     modelMappper = new ModelMapper();
