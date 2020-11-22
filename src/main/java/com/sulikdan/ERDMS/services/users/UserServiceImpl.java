@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
             + "Thank you for registering.\n "
             + "Please click on the below link to activate your DocsArchive account.\n"
             + frontEndDomainUrl
-            + "/auth/login?token=";
+            + "#/auth/login?token=";
 
     //                    + backEndDomainUrl  +"/api/users/register/confirm?token=";
 
