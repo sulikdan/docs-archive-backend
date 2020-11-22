@@ -25,7 +25,7 @@ import java.io.IOException;
  * @since 09-Jul-20
  */
 @ControllerAdvice
-public class DocUploadExceptionAdvice extends ResponseEntityExceptionHandler {
+public class GeneralExceptionAdvice extends ResponseEntityExceptionHandler {
 
   //    @ExceptionHandler(TesseractException.class)
   //    public ResponseEntity<String> handleTesseractException(Exception e) {
