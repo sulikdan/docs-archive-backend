@@ -26,18 +26,18 @@ services:
       --spring.data.mongodb.host=localhost
       --ocr.address=localhost
       --fe.port=80
-      --spring.mail.username=testmailfordocsarchive@gmail.com
-      --spring.mail.password=veronika*5274
+      --spring.mail.username=testMailTobeFilled@gmail.com
+      --spring.mail.password=PasswordForMail
     network_mode: "host"
     ports:
       - "8085:8085"
 
-#  frontend:
-#    container_name: frontend
-#    image: madgyver/docs-archive-frontend:latest
-#    network_mode: "host"
-#    ports:
-#      - "80:80"
+  frontend:
+    container_name: frontend
+    image: madgyver/docs-archive-frontend:latest
+    network_mode: "host"
+    ports:
+      - "80:80"
 
 #    links:
 
