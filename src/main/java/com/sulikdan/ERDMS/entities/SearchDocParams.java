@@ -31,8 +31,6 @@ public class SearchDocParams {
 
   private List<String> languages;
 
-  private List<Tag> tags;
-
   private String textRegex;
 
   private LocalDateTime createdFrom;
@@ -47,6 +45,8 @@ public class SearchDocParams {
   private Boolean sortAscending;
 
   private String fullText;
+
+  private List<Tag> tags;
 
   public SearchDocParams() {
     this.pageIndex = 0;

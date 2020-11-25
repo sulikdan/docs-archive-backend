@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * Created by Daniel Šulik on 06-Sep-20
  * <p>
- * Class Tag is used for .....
+ * Class Tag is used for tagging a document
  */
 @Getter
 @Setter

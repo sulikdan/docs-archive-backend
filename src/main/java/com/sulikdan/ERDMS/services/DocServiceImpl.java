@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * Class DocumentServiceImpl is implementation of DocumentService interface.
+ * Class DocServiceImpl is implementation of DocService interface.
  *
  * @author Daniel Šulik
  * @version 1.0

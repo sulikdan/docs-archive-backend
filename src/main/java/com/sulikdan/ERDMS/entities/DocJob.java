@@ -4,6 +4,7 @@ import java.io.File;
 
 /**
  * Class DocumentJob is used for .....
+ * warning: currently unused
  *
  * @author Daniel Šulik
  * @version 1.0

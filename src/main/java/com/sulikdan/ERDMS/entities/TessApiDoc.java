@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by Daniel Šulik on 09-Aug-20
  * <p>
- * Class TessApiDoc is used for .....
+ * Class TessApiDoc is used for wrapping result data from OCR API
  */
 @Getter
 @Setter

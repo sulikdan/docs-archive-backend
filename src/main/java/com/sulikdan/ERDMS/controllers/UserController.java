@@ -52,7 +52,6 @@ public class UserController {
     this.userService = userService;
     this.confirmationTokenService = confirmationTokenService;
     this.authenticationManager = authenticationManager;
-//    this.userDetailsService = userDetailsService;
     this.jwtTokenUtil = jwtTokenUtil;
     this.mapper = new ObjectMapper();
   }

@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.index.TextIndexed;
 import java.util.Date;
 
 /**
- * Class AsyncDocument is used for storing date about current doc status on OCR.
+ * Class AsyncApiInfo is used for storing date about current doc status on OCR.
  * Careful with URIs changes.
  * @implNote When AsyncApiState changed manually, it may cause Nullpointer exception, while trying
  * to communicate with OCR. Recommended is to changed it only to states WAITING_TO_SEND & COMPLETED.

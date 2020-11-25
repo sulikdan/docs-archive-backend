@@ -22,7 +22,8 @@ import java.util.List;
 /**
  * Created by Daniel Šulik on 09-Aug-20
  *
- * <p>Class RestApiOcrMethods is used for .....
+ * <p>Class RestApiOcrMethods is implementation of RestApiOcr.
+ * @see com.sulikdan.ERDMS.services.ocr.RestApiOcr
  */
 @Slf4j
 @Component

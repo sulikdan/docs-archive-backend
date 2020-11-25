@@ -21,12 +21,12 @@ import java.util.stream.Collectors;
 /**
  * Created by Daniel Šulik on 25-Jul-20
  *
- * <p>Class DocumentOcrChecker is used for .....
+ * <p>Class DocOcrChecker is used for .....
  */
 @Slf4j
 @Configuration
 @EnableScheduling
-public class DocumentOcrChecker {
+public class DocOcrChecker {
 
   private TaskExecutor taskExecutor;
 
@@ -37,7 +37,7 @@ public class DocumentOcrChecker {
   private final DocRepository documentRepository;
   private final VirtualStorageService virtualStorageService;
 
-  public DocumentOcrChecker(
+  public DocOcrChecker(
       TaskExecutor taskExecutor,
       BeanFactory beanFactory,
       DocService docService,

@@ -47,29 +47,23 @@ public class Doc {
   @JsonProperty("pages")
   private List<DocPage> docPageList;
 
-
   @JsonProperty("origName")
-//  @TextIndexed
   private String nameOfFile;
 
   @JsonIgnore
   private byte[] documentAsBytes;
 
-
   @JsonProperty("documentPreview")
   private byte[] documentPreview;
 
-//  @TextIndexed
   private DocType docType;
 
-//  @TextIndexed
   @CreationTimestamp
   @Builder.Default
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)
   @JsonFormat(pattern="dd/MM/yyyy HH:mm")
   private LocalDateTime createDateTime = LocalDateTime.now();
 
-//  @TextIndexed
   @UpdateTimestamp
   @Builder.Default
   @JsonDeserialize(using = LocalDateTimeDeserializer.class)

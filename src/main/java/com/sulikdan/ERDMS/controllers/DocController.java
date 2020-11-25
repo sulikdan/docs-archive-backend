@@ -39,7 +39,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 /**
  * Created by Daniel Šulik on 18-Jul-20
  *
- * <p>Class DocumentController is used for API accessing from outside to documents stored inside of
+ * <p>Class DocController is used for API accessing from outside to documents stored inside of
  * appication.
  *
  * @author Daniel Šulik

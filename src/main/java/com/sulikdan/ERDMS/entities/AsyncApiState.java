@@ -1,7 +1,7 @@
 package com.sulikdan.ERDMS.entities;
 
 /**
- * Class AsyncStatus is used for saving current document status:
+ * Class AsyncApiState is used for saving current document status:
  *
  * <p>
  *

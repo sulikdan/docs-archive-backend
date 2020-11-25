@@ -13,7 +13,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 /**
- * Class DocumentRepository is repo using CrudRepository to get access to DB, with all default CRUD
+ * Class DocRepository is repo using CrudRepository to get access to DB, with all default CRUD
  * operations and more methods.
  *
  * @author Daniel Šulik
@@ -35,6 +35,4 @@ public interface DocRepository extends MongoRepository<Doc, String>, DocCustomRe
 Page<Doc> searchByByOwnerIdAndText(String ownerId, String keywords,
                                         Pageable page);
 
-//  Page<Doc> findAllByOwnerIdAnd(
-//      String ownerId, TextCriteria criteria, Pageable pageable);
 }

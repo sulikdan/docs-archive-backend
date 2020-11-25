@@ -26,8 +26,4 @@ public interface DocCustomRepository {
    */
   Page<Doc> findDocsByMultipleArgs(SearchDocParams searchDocParams, User user);
 
-  //  TODO prepare?
-//  @Query(
-//      "{$or : [{'name': { $regex: ?0, $options:'i' }}, {'description': { $regex: ?0, $options:'i' }}]}")
-//  List<Doc> findDocsByRegex(String regex);
 }
