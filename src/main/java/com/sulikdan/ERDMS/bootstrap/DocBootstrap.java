@@ -42,7 +42,7 @@ public class DocBootstrap implements ApplicationListener<ContextRefreshedEvent> 
 
     log.info("Loading documents.");
 
-//    User user = saveTestUser();
+    User user = saveTestUser();
 //
 //    List<Doc> docs = loadDocuments(user);
 //
