@@ -194,8 +194,8 @@ public class DocServiceImpl implements DocService {
     doc.setOwner(foundDoc.getOwner());
     doc.setDocumentAsBytes(foundDoc.getDocumentAsBytes());
     doc.setDocumentPreview(foundDoc.getDocumentAsBytes());
-    if( doc.getDocConfig().getLang() == null || doc.getDocConfig().getLang().isEmpty() ){
-      log.info("Language not set:" + doc.getDocConfig().getLang());
+    if( doc.getDocConfig() == null || doc.getDocConfig().getLang() == null || doc.getDocConfig().getLang().isEmpty() ){
+      log.info("Language not set:" + doc.getDocConfig().toString());
       doc.getDocConfig().setLang(foundDoc.getDocConfig().getLang());
     }
     //   1 TODO do other params + should check null values ?

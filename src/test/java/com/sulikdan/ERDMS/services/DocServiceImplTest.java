@@ -168,6 +168,7 @@ class DocServiceImplTest {
     User user = new User();
     Doc doc = new Doc();
     doc.setOwner(user);
+    doc.setDocConfig(new DocConfig());
 
     when(documentRepository.findById(anyString())).thenReturn(Optional.of(doc));
 
