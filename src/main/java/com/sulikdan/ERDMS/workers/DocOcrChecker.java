@@ -57,30 +57,23 @@ public class DocOcrChecker {
   public void checkUnscannedDocs() {
     log.info("Started DocumentOcrChecker!");
 
-    //    TODO add pageLimit ...
-    // find completed -> to be deleted? -- may not be needed
     List<Doc> cleaningDocs =
         documentRepository.findDocumentsByAsyncApiInfoAsyncApiState(
             AsyncApiState.RESOURCE_TO_CLEAN);
-    //        documentService.finDocumentsByAsyncApiState(AsyncApiState.RESOURCE_TO_CLEAN);
 
     // find processed -> to download
-    List<Doc> completedDocs =
+    List<Doc> scannedDocs =
         documentRepository.findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState.SCANNED);
-    //        documentService.finDocumentsByAsyncApiState(AsyncApiState.SCANNED);
 
     //    check status
     List<Doc> processingDocs =
         documentRepository.findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState.PROCESSING);
-    //        documentService.finDocumentsByAsyncApiState(AsyncApiState.PROCESSING);
 
     // find to_be_send -> to process not yet processed
     List<Doc> waitingToSendDocs =
         documentRepository.findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState.WAITING_TO_SEND);
-    //        documentService.finDocumentsByAsyncApiState(AsyncApiState.WAITING_TO_SEND);
 
-    // TODO pick ration betweenThem
-    List<Doc> documentsWork = new ArrayList<>(completedDocs);
+    List<Doc> documentsWork = new ArrayList<>(scannedDocs);
     documentsWork.addAll(processingDocs);
     documentsWork.addAll(waitingToSendDocs);
     documentsWork.addAll(cleaningDocs);
@@ -94,8 +87,6 @@ public class DocOcrChecker {
     // add docs to virtual storage
     documentsWork.forEach(document -> virtualStorageService.addDoc(document.getId()));
 
-    // pick subset of them with ratio to each group
-    //    TODO every service/repo new instance??
     documentsWork.forEach(
         document1 ->
             taskExecutor.execute(

@@ -192,7 +192,13 @@ public class DocServiceImpl implements DocService {
     Doc foundDoc = foundDocOptional.get();
     doc.setNameOfFile(foundDoc.getNameOfFile());
     doc.setOwner(foundDoc.getOwner());
-    //    TODO do other params + should check null values ?
+    doc.setDocumentAsBytes(foundDoc.getDocumentAsBytes());
+    doc.setDocumentPreview(foundDoc.getDocumentAsBytes());
+    if( doc.getDocConfig().getLang() == null || doc.getDocConfig().getLang().isEmpty() ){
+      log.info("Language not set:" + doc.getDocConfig().getLang());
+      doc.getDocConfig().setLang(foundDoc.getDocConfig().getLang());
+    }
+    //   1 TODO do other params + should check null values ?
 
     saveDoc(doc);
   }

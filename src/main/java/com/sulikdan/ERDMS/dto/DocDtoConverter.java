@@ -37,6 +37,8 @@ public class DocDtoConverter {
       docDto.setTags(tags);
     }
 
+//    if(  )
+
     return docDto;
   }
 

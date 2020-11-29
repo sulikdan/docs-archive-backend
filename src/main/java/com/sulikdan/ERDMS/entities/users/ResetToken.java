@@ -23,7 +23,7 @@ import java.util.UUID;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "RESET_TOKEN")
+@Document(collection = "resetTokens")
 public class ResetToken {
 
   //  Id used also as token, cause it's unique(or it should be)
