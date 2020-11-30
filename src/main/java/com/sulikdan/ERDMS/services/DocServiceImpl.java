@@ -117,11 +117,13 @@ public class DocServiceImpl implements DocService {
     for (MultipartFile file : files) {
 
       log.info("Processing file: ");
+      ByteArrayOutputStream thumbnail = createThumbnail(file, 150);
+
       Doc docToProcess =
           Doc.builder()
               .nameOfFile(file.getOriginalFilename())
               .documentAsBytes(file.getBytes())
-              .documentPreview(createThumbnail(file, 150).toByteArray())
+              .documentPreview(thumbnail != null ? thumbnail.toByteArray() : null)
               .docConfig(docConfig)
               .asyncApiInfo(
                   new AsyncApiInfo(
