@@ -194,7 +194,9 @@ public class DocServiceImpl implements DocService {
     doc.setOwner(foundDoc.getOwner());
     doc.setDocumentAsBytes(foundDoc.getDocumentAsBytes());
     doc.setDocumentPreview(foundDoc.getDocumentAsBytes());
-    if( doc.getDocConfig() == null || doc.getDocConfig().getLang() == null || doc.getDocConfig().getLang().isEmpty() ){
+    if (doc.getDocConfig() == null
+        || doc.getDocConfig().getLang() == null
+        || doc.getDocConfig().getLang().isEmpty()) {
       log.info("Language not set:" + doc.getDocConfig().toString());
       doc.getDocConfig().setLang(foundDoc.getDocConfig().getLang());
     }
@@ -240,17 +242,20 @@ public class DocServiceImpl implements DocService {
     Page<Doc> foundDocPages;
     if (searchDocParams.getFullText() != null && !searchDocParams.getFullText().isEmpty()) {
 
-      PageRequest pageRequest = PageRequest.of(searchDocParams.getPageIndex(), searchDocParams.getPageSize());
+      PageRequest pageRequest =
+          PageRequest.of(searchDocParams.getPageIndex(), searchDocParams.getPageSize());
       Query query =
           TextQuery.query(
                   TextCriteria.forDefaultLanguage().matchingAny(searchDocParams.getFullText()))
               .with(pageRequest);
       Criteria orCriteria = new Criteria();
 
-      query.addCriteria(orCriteria.orOperator(Criteria.where("owner").is(user),(Criteria.where("isShared").is(Boolean.TRUE))));
+      query.addCriteria(
+          orCriteria.orOperator(
+              Criteria.where("owner").is(user), (Criteria.where("isShared").is(Boolean.TRUE))));
       List<Doc> list = mongoTemplate.find(query, Doc.class);
       long count = mongoTemplate.count(query, Doc.class);
-      foundDocPages = new PageImpl<Doc>(list , pageRequest, count);
+      foundDocPages = new PageImpl<Doc>(list, pageRequest, count);
 
     } else {
       foundDocPages = documentRepository.findDocsByMultipleArgs(searchDocParams, user);
@@ -284,6 +289,12 @@ public class DocServiceImpl implements DocService {
       throws IOException {
 
     String extension = FilenameUtils.getExtension(orginalFile.getOriginalFilename());
+
+    String png = "png";
+    String jpg = "jpg";
+
+    if (extension == null || (!png.equalsIgnoreCase(extension) && !jpg.equalsIgnoreCase(extension)))
+      return null;
 
     log.warn("Content type" + orginalFile);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
