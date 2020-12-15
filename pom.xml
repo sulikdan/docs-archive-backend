@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.sulikdan</groupId>
-    <artifactId>ERDMS</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>ERDMS</name>
+    <artifactId>EDMS</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+    <name>EDMS</name>
     <description>Project for Spring Boot</description>
 
     <properties>
