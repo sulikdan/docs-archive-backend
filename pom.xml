@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.sulikdan</groupId>
     <artifactId>EDMS</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <name>EDMS</name>
     <description>Project for Spring Boot</description>
 

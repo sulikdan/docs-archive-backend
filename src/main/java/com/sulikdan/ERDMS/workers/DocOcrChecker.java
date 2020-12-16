@@ -52,8 +52,9 @@ public class DocOcrChecker {
     this.virtualStorageService = virtualStorageService;
   }
 
+  // (120000/2), initialDelay = (120000/2))
   // 2min -> 120000milis
-  @Scheduled(fixedDelay = 60000) // (120000/2), initialDelay = (120000/2))
+  @Scheduled(fixedDelay = 60000)
   public void checkUnscannedDocs() {
     log.info("Started DocumentOcrChecker!");
 
