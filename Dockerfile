@@ -25,4 +25,4 @@ COPY --from=build /usr/src/app/target/EDMS-1.0.1.jar /usr/app/EDMS-1.0.1.jar
 
 # Launch the Spring Boot application
 
-ENTRYPOINT ["java", "-jar", "/usr/app/EDMS-0.0.1.jar"]
+ENTRYPOINT ["java", "-jar", "/usr/app/EDMS-1.0.1.jar"]
