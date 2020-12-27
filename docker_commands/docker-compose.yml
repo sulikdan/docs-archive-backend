@@ -6,8 +6,9 @@ services:
     image: mongo:4.4.1
     ports:
       - "27017:27017"
-  #    volumes:
-  #      - mongodbdata:/data/db
+    volumes:
+        - mongodbdata:/data/db
+
   ocr-api:
     container_name: ocr-api
     image: madgyver/docs-archive-ocr-api:latest
@@ -21,6 +22,9 @@ services:
     container_name: backend-api
     image: madgyver/docs-archive-backend-api:latest
     command:
+      # Parameters to set
+      # More additional params that can be set are located
+      # in application.yml
       --server.address=0.0.0.0
       --spring.data.mongodb.host=mongo-db
       --ocr.address=ocr-api
@@ -36,19 +40,6 @@ services:
     ports:
       - "80:80"
 
-
-#  web:
-#    ports:
-#      - "5000:5000"
-#    volumes:
-#      - .:/code
-#      - logvolume01:/var/log
-#    links:
-#      - redis
-#  redis:
-#    image: redis
-#volumes:
-#  mongodbdata:
-#networks:
-#  backend-com:
+volumes:
+  mongodbdata:
 
