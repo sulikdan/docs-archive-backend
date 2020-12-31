@@ -6,12 +6,15 @@ import com.sulikdan.ERDMS.entities.users.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.TextIndexDefinition;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -33,6 +36,10 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
           DocMongoRepository mongoRepository, MongoTemplate mongoTemplate) {
     this.mongoRepository = mongoRepository;
     this.mongoTemplate   = mongoTemplate;
+
+    TextIndexDefinition textIndex =
+            new TextIndexDefinition.TextIndexDefinitionBuilder().onAllFields().build();
+    mongoTemplate.indexOps(Doc.class).ensureIndex(textIndex);
   }
 
   @Override

@@ -71,8 +71,7 @@ class DocServiceImplTest {
             ocrService,
             virtualStorageService,
             storageService,
-            documentRepository,
-            mongoTemplate);
+            documentRepository);
   }
 
   @Test
