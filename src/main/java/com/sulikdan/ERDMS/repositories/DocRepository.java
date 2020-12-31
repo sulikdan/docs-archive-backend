@@ -26,13 +26,13 @@ public interface DocRepository extends MongoRepository<Doc, String>, DocCustomRe
 
   List<Doc> findDocumentsByAsyncApiInfoAsyncApiState(AsyncApiState asyncApiState);
 
-  List<Doc> findDocumentsBy(List<String> id);
+//  List<Doc> findDocumentsBy(List<String> id);
 
   Page<Doc> findAllBy(TextCriteria criteria, Pageable pageable);
 
 //  Page<Doc> findAllBy(TextCriteria criteria);
-@Query("{$and:[ {'ownerId': ?0} , {'$text' : { '$search' : ?1}} ]}")
-Page<Doc> searchByByOwnerIdAndText(String ownerId, String keywords,
-                                        Pageable page);
+//@Query("{$and:[ {'ownerId': ?0} , {'$text' : { '$search' : ?1}} ]}")
+//Page<Doc> searchByByOwnerIdAndText(String ownerId, String keywords,
+//                                        Pageable page);
 
 }

@@ -20,7 +20,7 @@ import java.io.IOException;
 /**
  * Created by Daniel Šulik on 11-Oct-20
  *
- * <p>Class JwtRequestFilter is used for .....
+ * <p>Class JwtRequestFilter is used for filtering incomming traffic, used in WebSecurityCOnfig.
  */
 @Slf4j
 @Component

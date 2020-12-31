@@ -19,7 +19,7 @@ import java.util.function.Function;
 /**
  * Created by Daniel Šulik on 11-Oct-20
  *
- * <p>Class JwtTokenUtil is used for .....
+ * <p>Class JwtTokenUtil is used to take care of JWT token .
  * https://dzone.com/articles/spring-boot-security-json-web-tokenjwt-hello-world
  */
 @Slf4j

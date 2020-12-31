@@ -21,7 +21,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 /**
  * Created by Daniel Šulik on 11-Oct-20
  *
- * <p>Class WebSecurityconfig is used for .....
+ * <p>Class WebSecurityconfig is used to specify web security, in addition there is
+ * a big part taking care of incomming request and decides, if they need Token or not.
  */
 @AllArgsConstructor
 @EnableWebSecurity
