@@ -244,21 +244,21 @@ public class DocServiceImpl implements DocService {
     Page<Doc> foundDocPages;
     if (searchDocParams.getFullText() != null && !searchDocParams.getFullText().isEmpty()) {
 
-      PageRequest pageRequest =
-          PageRequest.of(searchDocParams.getPageIndex(), searchDocParams.getPageSize());
-      Query query =
-          TextQuery.query(
-                  TextCriteria.forDefaultLanguage().matchingAny(searchDocParams.getFullText()))
-              .with(pageRequest);
-      Criteria orCriteria = new Criteria();
-
-      query.addCriteria(
-          orCriteria.orOperator(
-              Criteria.where("owner").is(user), (Criteria.where("isShared").is(Boolean.TRUE))));
-      List<Doc> list = mongoTemplate.find(query, Doc.class);
-      long count = mongoTemplate.count(query, Doc.class);
-      foundDocPages = new PageImpl<Doc>(list, pageRequest, count);
-
+//      PageRequest pageRequest =
+//          PageRequest.of(searchDocParams.getPageIndex(), searchDocParams.getPageSize());
+//      Query query =
+//          TextQuery.query(
+//                  TextCriteria.forDefaultLanguage().matchingAny(searchDocParams.getFullText()))
+//              .with(pageRequest);
+//      Criteria orCriteria = new Criteria();
+//
+//      query.addCriteria(
+//          orCriteria.orOperator(
+//              Criteria.where("owner").is(user), (Criteria.where("isShared").is(Boolean.TRUE))));
+//      List<Doc> list = mongoTemplate.find(query, Doc.class);
+//      long count = mongoTemplate.count(query, Doc.class);
+//      foundDocPages = new PageImpl<Doc>(list, pageRequest, count);
+        foundDocPages = documentRepository.findDocsByFullText(searchDocParams, user);
     } else {
       foundDocPages = documentRepository.findDocsByMultipleArgs(searchDocParams, user);
     }

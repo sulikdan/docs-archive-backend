@@ -21,9 +21,17 @@ public interface DocCustomRepository {
    *
    * @param searchDocParams object containing multiple params that will be used in search. It is
    *     required that provided params are not null!
-   * @param user
+   * @param user the one created request
    * @return Page of documents that are valid for provided arguments.
    */
   Page<Doc> findDocsByMultipleArgs(SearchDocParams searchDocParams, User user);
+
+  /**
+   * Finds documents using full-text search.
+   * @param searchDocParams using searchDocParams but expects non-null and not-empty fulltext, pageIndex and pageSize
+   * @param user the one created request
+   * @return Page of documents that are valid for provided arguments.
+   */
+  Page<Doc> findDocsByFullText(SearchDocParams searchDocParams, User user);
 
 }

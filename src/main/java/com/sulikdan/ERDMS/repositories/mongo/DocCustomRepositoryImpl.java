@@ -4,12 +4,15 @@ import com.querydsl.core.BooleanBuilder;
 import com.sulikdan.ERDMS.entities.*;
 import com.sulikdan.ERDMS.entities.users.User;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
+import org.springframework.data.mongodb.core.query.TextQuery;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * Created by Daniel Šulik on 11-Sep-20
@@ -24,8 +27,12 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
 
   private final DocMongoRepository mongoRepository;
 
-  public DocCustomRepositoryImpl(DocMongoRepository mongoRepository) {
+  private final MongoTemplate mongoTemplate;
+
+  public DocCustomRepositoryImpl(
+          DocMongoRepository mongoRepository, MongoTemplate mongoTemplate) {
     this.mongoRepository = mongoRepository;
+    this.mongoTemplate   = mongoTemplate;
   }
 
   @Override
@@ -130,5 +137,23 @@ public class DocCustomRepositoryImpl implements DocCustomRepository {
     //    if (builder.hasValue()) {
     //      System.out.println("Was here without values...");
     return mongoRepository.findAll(builder, pageable);
+  }
+
+  @Override
+  public Page<Doc> findDocsByFullText(SearchDocParams searchDocParams, User user) {
+    PageRequest pageRequest =
+            PageRequest.of(searchDocParams.getPageIndex(), searchDocParams.getPageSize());
+    Query query =
+            TextQuery.query(
+                    TextCriteria.forDefaultLanguage().matchingAny(searchDocParams.getFullText()))
+                     .with(pageRequest);
+    Criteria orCriteria = new Criteria();
+
+    query.addCriteria(
+            orCriteria.orOperator(
+                    Criteria.where("owner").is(user), (Criteria.where("isShared").is(Boolean.TRUE))));
+    List<Doc> list = mongoTemplate.find(query, Doc.class);
+    long count = mongoTemplate.count(query, Doc.class);
+    return new PageImpl<Doc>(list, pageRequest, count);
   }
 }
