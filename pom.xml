@@ -15,7 +15,7 @@
     <description>Project for Spring Boot</description>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>1.11</java.version>
         <spring.versions>2.3.1.RELEASE</spring.versions>
         <querydsl.version>4.3.1</querydsl.version>
         <model.mapper.version>2.3.8</model.mapper.version>
