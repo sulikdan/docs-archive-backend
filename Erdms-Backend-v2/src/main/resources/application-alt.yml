@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: Erdms-Backend-v2
+
+  datasource:
+#    url: jdbc:postgresql://192.168.65.0:5432/compose-postgres
+    url: jdbc:postgresql://localhost:32768/compose-postgres
+#    username: compose-postgres
+    username: postgres
+#    password: compose-postgres
+    password:
+    driver-class-name: org.postgresql.Driver
+
+  #  Creates and drops DB
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true

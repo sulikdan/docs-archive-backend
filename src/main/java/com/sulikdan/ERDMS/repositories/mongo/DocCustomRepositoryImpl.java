@@ -2,6 +2,7 @@ package com.sulikdan.ERDMS.repositories.mongo;
 
 import com.querydsl.core.BooleanBuilder;
 import com.sulikdan.ERDMS.entities.*;
+import com.sulikdan.ERDMS.entities.QDoc;
 import com.sulikdan.ERDMS.entities.users.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;

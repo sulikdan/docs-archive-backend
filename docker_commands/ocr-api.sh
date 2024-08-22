@@ -30,4 +30,4 @@ docker pull madgyver/docs-archive-ocr-api:latest
 #docker run --name ocr-api -p 8086:8086 --network host -d madgyver/docs-archive-ocr-api --tesseract.path=/usr/share/tessdata/
 #docker run --name ocr-api --network host -d madgyver/docs-archive-ocr-api --tesseract.path=/usr/share/tessdata/ #This is working from host
 
- docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ocr-api
+docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ocr-api
